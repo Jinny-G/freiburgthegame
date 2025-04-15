@@ -33,9 +33,9 @@
       padding: 4px 8px;
       text-align: center;
     }
-    #scoreboard th {
-      background-color: #f2f2f2;
-    }
+   #scoreboard th {
+  background-color: transparent;
+}
     .adminOnly {
   display: none;
 }
@@ -45,10 +45,10 @@
 
     @media (max-width: 600px) {
   #scoreboard {
-    width: 90vw;
-    font-size: 0.85em;
-    top: 70px;
-    right: 5px;
+    width: auto;
+    font-size: 0.8em;
+    top: 10px;
+    right: 10px;
   }
 
   #scoreboard table {
@@ -56,7 +56,7 @@
   }
 
   #countdown {
-    top: 10px;
+    top: 50px;
     left: 10px;
     right: auto;
     font-size: 0.9em;
@@ -70,12 +70,14 @@
     width: 85vw;
     font-size: 0.9em;
   }
+
 }
 
-    #countdown {
+#countdown {
   position: fixed;
   top: 10px;
-  right: 280px;
+  left: 50%;
+  transform: translateX(-50%);
   background: white;
   padding: 10px;
   font-family: sans-serif;
@@ -90,6 +92,37 @@
 
     #colorPicker {
   z-index: 1100; /* höher als 1000 vom scoreboard */
+}
+
+    .teamDot {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  display: inline-block;
+  margin: auto;
+}
+
+#scoreboard {
+  top: 10px;
+  right: 10px;
+  position: fixed;
+  background: white;
+  border-radius: 5px;
+  font-family: sans-serif;
+  box-shadow: 0 0 5px rgba(0,0,0,0.3);
+  z-index: 1000;
+  padding: 5px;
+}
+
+#scoreboard table {
+  border-collapse: collapse;
+  font-size: 0.9em;
+}
+
+#scoreboard th,
+#scoreboard td {
+  padding: 4px 6px;
+  text-align: center;
 }
     
   </style>
@@ -131,18 +164,34 @@
   <span id="lockIcon">🔒</span>
 </div>
   
-  <div id="scoreboard">
-    <table>
-      <thead>
-        <tr><th>Team</th><th>Punkte</th><th>Gesichert</th></tr>
-      </thead>
-      <tbody>
-        <tr><td>Team A</td><td id="pointsA">0</td><td id="securedA">0</td></tr>
-        <tr><td>Team B</td><td id="pointsB">0</td><td id="securedB">0</td></tr>
-        <tr><td>Team C</td><td id="pointsC">0</td><td id="securedC">0</td></tr>
-      </tbody>
-    </table>
-  </div>
+<div id="scoreboard">
+  <table>
+    <thead>
+      <tr>
+        <th>🔴</th>
+        <th>🎯</th>
+        <th>🔒</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><div class="teamDot" style="background:#e41a1c;"></div></td>
+        <td id="pointsA">0</td>
+        <td id="securedA">0</td>
+      </tr>
+      <tr>
+        <td><div class="teamDot" style="background:#377eb8;"></div></td>
+        <td id="pointsB">0</td>
+        <td id="securedB">0</td>
+      </tr>
+      <tr>
+        <td><div class="teamDot" style="background:#ffdf00;"></div></td>
+        <td id="pointsC">0</td>
+        <td id="securedC">0</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
 
   <div id="map"></div>
 
