@@ -19,7 +19,6 @@
 
 
     #colorPicker { top: 10px; left: 70px; }
-    #adminToggle { top: 10px; left: 280px; }
     #scoreboard {
       top: 10px;
       right: 10px;
@@ -37,10 +36,16 @@
     #scoreboard th {
       background-color: #f2f2f2;
     }
+    .adminOnly {
+  display: none;
+}
+.adminVisible .adminOnly {
+  display: block;
+}
   </style>
 </head>
 <body>
-  <div id="colorPicker">
+  <div id="colorPicker" class="adminOnly">
     <label for="colorSelect">Farbe wählen:</label>
     <select id="colorSelect">
       <option value="#e41a1c">Rot</option>
@@ -66,10 +71,25 @@
   ⏳ Zeit bis Spielende: <span id="timer">--:--</span>
 </div>
 
-  <div id="adminToggle">
-    <label><input type="checkbox" id="editMode"> Bearbeitungsmodus (nur für Admin)</label>
-  </div>
-
+<div id="adminToggle" style="
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 1000;
+  cursor: pointer;
+  font-size: 24px;
+  background: white;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  box-shadow: 0 0 5px rgba(0,0,0,0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+">
+  <span id="lockIcon">🔒</span>
+</div>
+  
   <div id="scoreboard">
     <table>
       <thead>
@@ -113,22 +133,25 @@
     let selectedLayer = null;
     let editEnabled = false;
     let geojson = null;
-
-    document.getElementById('editMode').addEventListener('change', function () {
-      if (this.checked) {
-        const pw = prompt("Bitte Admin-Passwort eingeben:");
-        if (pw === "freiburg123") {
-          editEnabled = true;
-          alert("Bearbeitungsmodus aktiviert.");
-        } else {
-          alert("Falsches Passwort!");
-          this.checked = false;
-        }
-      } else {
-        editEnabled = false;
-        selectedLayer = null;
-      }
-    });
+    
+document.getElementById("adminToggle").addEventListener("click", function () {
+  if (!editEnabled) {
+    const pw = prompt("Bitte Admin-Passwort eingeben:");
+    if (pw === "freiburg123") {
+      editEnabled = true;
+      document.body.classList.add("adminVisible");
+      document.getElementById("lockIcon").textContent = "🔓";
+      alert("Bearbeitungsmodus aktiviert.");
+    } else {
+      alert("Falsches Passwort!");
+    }
+  } else {
+    editEnabled = false;
+    document.body.classList.remove("adminVisible");
+    document.getElementById("lockIcon").textContent = "🔒";
+    alert("Bearbeitungsmodus deaktiviert.");
+  }
+});
 
     document.getElementById('colorSelect').addEventListener('change', function () {
       if (selectedLayer && editEnabled) {
@@ -274,7 +297,7 @@ startCountdown(ziel);
 
   </script>
   
-  <div id="resetButton" style="
+<div id="resetButton" class="adminOnly" style="
   position: fixed;
   bottom: 20px;
   left: 20px;
