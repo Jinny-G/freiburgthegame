@@ -42,6 +42,56 @@
 .adminVisible .adminOnly {
   display: block;
 }
+
+    @media (max-width: 600px) {
+  #scoreboard {
+    width: 90vw;
+    font-size: 0.85em;
+    top: 70px;
+    right: 5px;
+  }
+
+  #scoreboard table {
+    font-size: 0.85em;
+  }
+
+  #countdown {
+    top: 10px;
+    left: 10px;
+    right: auto;
+    font-size: 0.9em;
+  }
+
+  #colorPicker {
+    top: auto;
+    bottom: 80px;
+    left: 10px;
+    right: auto;
+    width: 85vw;
+    font-size: 0.9em;
+  }
+}
+
+    #countdown {
+  position: fixed;
+  top: 10px;
+  right: 280px;
+  background: white;
+  padding: 10px;
+  font-family: sans-serif;
+  border-radius: 5px;
+  box-shadow: 0 0 5px rgba(0,0,0,0.3);
+  z-index: 1000;
+}
+
+    .leaflet-control-zoom {
+  top: 70px !important;
+}
+
+    #colorPicker {
+  z-index: 1100; /* höher als 1000 vom scoreboard */
+}
+    
   </style>
 </head>
 <body>
@@ -58,16 +108,7 @@
     </select>
   </div>
 
-  <div id="countdown" style="
-  position: fixed;
-  top: 10px;
-  right: 280px;
-  background: white;
-  padding: 10px;
-  font-family: sans-serif;
-  border-radius: 5px;
-  box-shadow: 0 0 5px rgba(0,0,0,0.3);
-  z-index: 1000;">
+<div id="countdown">
   ⏳ Zeit bis Spielende: <span id="timer">--:--</span>
 </div>
 
