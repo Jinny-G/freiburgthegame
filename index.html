@@ -56,7 +56,7 @@
   <div id="countdown" style="
   position: fixed;
   top: 10px;
-  right: 330px;
+  right: 280px;
   background: white;
   padding: 10px;
   font-family: sans-serif;
@@ -153,22 +153,48 @@
       return farben;
     }
 
-    function updateScoreboard() {
-      let pointsA = 0, securedA = 0;
-      let pointsB = 0, securedB = 0;
-      let pointsC = 0, securedC = 0;
-    
-      
-    function startCountdown(targetTime) {
+function updateScoreboard() {
+  let pointsA = 0, securedA = 0;
+  let pointsB = 0, securedB = 0;
+  let pointsC = 0, securedC = 0;
+
+  geojson.eachLayer(layer => {
+    const color = layer.options.fillColor;
+    switch (color) {
+      case '#e41a1c': pointsA++; securedA++; break;
+      case '#fb8072': pointsA++; break;
+      case '#377eb8': pointsB++; securedB++; break;
+      case '#a6cee3': pointsB++; break;
+      case '#ffdf00': pointsC++; securedC++; break;
+      case '#ffffb3': pointsC++; break;
+    }
+  });
+
+  document.getElementById("pointsA").textContent = pointsA;
+  document.getElementById("securedA").textContent = securedA;
+  document.getElementById("pointsB").textContent = pointsB;
+  document.getElementById("securedB").textContent = securedB;
+  document.getElementById("pointsC").textContent = pointsC;
+  document.getElementById("securedC").textContent = securedC;
+} // ✅ HIER war bei dir die schließende Klammer vergessen
+
+function startCountdown(targetTime) {
   function update() {
     const now = new Date();
     const diff = targetTime - now;
     if (diff <= 0) {
       document.getElementById("timer").textContent = "00:00";
       return;
-    }
+    }  
+    const minutes = String(Math.floor(diff / 60000)).padStart(2, "0");
+    const seconds = String(Math.floor((diff % 60000) / 1000)).padStart(2, "0");
+    document.getElementById("timer").textContent = `${minutes}:${seconds}`;
+    setTimeout(update, 1000);
+  }
+  update();
+}
 
-    function resetAllColors() {
+function resetAllColors() {
   if (!editEnabled) {
     alert("Nur im Admin-Modus verfügbar!");
     return;
@@ -182,37 +208,16 @@
     });
     updateScoreboard();
   }
-}
+} // ✅ HIER war bei dir die Klammer **vergessen**!
+
+// Countdown starten
+const ziel = new Date();
+ziel.setHours(15, 0, 0, 0);
+startCountdown(ziel);
+
+
+
     
-    const minutes = String(Math.floor(diff / 60000)).padStart(2, "0");
-    const seconds = String(Math.floor((diff % 60000) / 1000)).padStart(2, "0");
-    document.getElementById("timer").textContent = `${minutes}:${seconds}`;
-    setTimeout(update, 1000);
-  }
-  update();
-}
-
-
-      geojson.eachLayer(layer => {
-        const color = layer.options.fillColor;
-        switch (color) {
-          case '#e41a1c': pointsA++; securedA++; break;
-          case '#fb8072': pointsA++; break;
-          case '#377eb8': pointsB++; securedB++; break;
-          case '#a6cee3': pointsB++; break;
-          case '#ffdf00': pointsC++; securedC++; break;
-          case '#ffffb3': pointsC++; break;
-        }
-      });
-
-      document.getElementById("pointsA").textContent = pointsA;
-      document.getElementById("securedA").textContent = securedA;
-      document.getElementById("pointsB").textContent = pointsB;
-      document.getElementById("securedB").textContent = securedB;
-      document.getElementById("pointsC").textContent = pointsC;
-      document.getElementById("securedC").textContent = securedC;
-    }
-
     function onEachFeature(feature, layer) {
       const id = feature.properties.name;
 
@@ -265,10 +270,7 @@
         }).addTo(map);
         updateScoreboard();
       });
-// Start: Countdown bis heute 15:00 Uhr
-const ziel = new Date();
-ziel.setHours(15, 0, 0, 0);  // <- Zeit anpassen, wenn gewünscht
-startCountdown(ziel);
+
 
   </script>
   
