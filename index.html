@@ -16,6 +16,19 @@
       font-family: sans-serif;
       z-index: 1000;
     }
+   <div id="countdown" style="
+  position: fixed;
+  top: 10px;
+  right: 230px;
+  background: white;
+  padding: 10px;
+  font-family: sans-serif;
+  border-radius: 5px;
+  box-shadow: 0 0 5px rgba(0,0,0,0.3);
+  z-index: 1000;">
+  ⏳ Zeit bis Spielende: <span id="timer">--:--</span>
+</div>
+
     #colorPicker { top: 10px; left: 70px; }
     #adminToggle { top: 10px; left: 280px; }
     #scoreboard {
@@ -142,6 +155,24 @@
       let pointsA = 0, securedA = 0;
       let pointsB = 0, securedB = 0;
       let pointsC = 0, securedC = 0;
+      
+    function startCountdown(targetTime) {
+  function update() {
+    const now = new Date();
+    const diff = targetTime - now;
+    if (diff <= 0) {
+      document.getElementById("timer").textContent = "00:00";
+      return;
+    }
+    
+    const minutes = String(Math.floor(diff / 60000)).padStart(2, "0");
+    const seconds = String(Math.floor((diff % 60000) / 1000)).padStart(2, "0");
+    document.getElementById("timer").textContent = `${minutes}:${seconds}`;
+    setTimeout(update, 1000);
+  }
+  update();
+}
+
 
       geojson.eachLayer(layer => {
         const color = layer.options.fillColor;
@@ -215,6 +246,11 @@
         }).addTo(map);
         updateScoreboard();
       });
+// Start: Countdown bis heute 15:00 Uhr
+const ziel = new Date();
+ziel.setHours(15, 0, 0, 0);  // <- Zeit anpassen, wenn gewünscht
+startCountdown(ziel);
+
   </script>
 </body>
 </html>
