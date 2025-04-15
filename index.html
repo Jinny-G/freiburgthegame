@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Freiburg Karte mit Firebase</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <style>
+    #map { height: 100vh; }
+    #colorPicker {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      z-index: 1000;
+      background: white;
+      padding: 10px;
+      border-radius: 5px;
+      box-shadow: 0 0 5px rgba(0,0,0,0.3);
+    }
+  </style>
+</head>
+<body>
+  <div id="colorPicker">
+    <label for="colorSelect">Farbe wählen:</label>
+    <select id="colorSelect">
+      <option value="#e41a1c">Rot</option>
+      <option value="#fb8072">Hellrot</option>
+      <option value="#377eb8">Blau</option>
+      <option value="#a6cee3">Hellblau</option>
+      <option value="#ffdf00">Gelb</option>
+      <option value="#ffffb3">Hellgelb</option>
+      <option value="#bdbdbd">Grau</option>
+    </select>
+  </div>
+  <div id="map"></div>
+
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+
+  <script>
+    // ⬇️ Hier DEINE firebaseConfig einsetzen!
+const firebaseConfig = {
+  apiKey: "AIzaSyCRcsMUKzIG0m1ItnMV2O1mCt4O9Br2_GY",
+  authDomain: "freiburgthegame.firebaseapp.com",
+  projectId: "freiburgthegame",
+  storageBucket: "freiburgthegame.firebasestorage.app",
+  messagingSenderId: "107696847131",
+  appId: "1:107696847131:web:799f0ca624d71b2a9dbbbe"
+};
+
+    };
+
+    // Firebase initialisieren
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    const map = L.map('map').setView([47.999, 7.85], 13);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; OpenStreetMap contributors'
+    }).addTo(map);
+
+    let selectedLayer = null;
+    let geojson = null;
+    const colorSelect = document.getElementById('colorSelect');
+
+    colorSelect.addEventListener('change', () => {
+      if (selectedLayer) {
+        const selectedColor = colorSelect.value;
+        selectedLayer.setStyle({ fillColor: selectedColor });
+        selectedLayer.defaultColor = selectedColor;
+        saveColor(selectedLayer.feature.properties.name, selectedColor);
+      }
+    });
+
+    function onEachFeature(feature, layer) {
+      const name = feature.properties.name;
+      layer.on('click', () => {
+        selectedLayer = layer;
+        colorSelect.value = layer.defaultColor || "#bdbdbd";
+      });
+
+      const center = layer.getBounds().getCenter();
+      const label = L.marker(center, {
+        icon: L.divIcon({
+          className: 'label',
+          html: `<strong>${name}</strong>`,
+          iconSize: [100, 20]
+        })
+      });
+      label.addTo(map);
+
+      loadColor(name).then(color => {
+        const defaultColor = color || "#bdbdbd";
+        layer.setStyle({
+          fillColor: defaultColor,
+          weight: 2,
+          opacity: 1,
+          color: 'black',
+          fillOpacity: 0.6
+        });
+        layer.defaultColor = defaultColor;
+      });
+    }
+
+    function saveColor(name, color) {
+      db.collection("farben").doc(name).set({ color: color });
+    }
+
+    async function loadColor(name) {
+      const doc = await db.collection("farben").doc(name).get();
+      return doc.exists ? doc.data().color : null;
+    }
+
+    fetch('https://raw.githubusercontent.com/codeforgermany/click_that_hood/main/public/data/freiburg.geojson')
+      .then(res => res.json())
+      .then(data => {
+        geojson = L.geoJSON(data, {
+          onEachFeature: onEachFeature
+        }).addTo(map);
+      });
+  </script>
+</body>
+</html>
