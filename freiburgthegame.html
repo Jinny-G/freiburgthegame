@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Stadtteile Freiburg</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <style>
+    #map {
+      height: 100vh;
+    }
+    #colorPicker {
+      position: absolute;
+      top: 10px;
+      left: 70px;
+      z-index: 1000;
+      background: white;
+      padding: 10px;
+      border-radius: 5px;
+      box-shadow: 0 0 5px rgba(0,0,0,0.3);
+    }
+    #adminToggle {
+      position: absolute;
+      top: 10px;
+      left: 280px;
+      z-index: 1000;
+      background: white;
+      padding: 10px;
+      border-radius: 5px;
+      box-shadow: 0 0 5px rgba(0,0,0,0.3);
+      font-family: sans-serif;
+    }
+    #scoreboard {
+      position: fixed;
+      top: 10px;
+      right: 10px;
+      z-index: 1000;
+      background: white;
+      padding: 10px;
+      border-radius: 5px;
+      font-family: sans-serif;
+      box-shadow: 0 0 5px rgba(0,0,0,0.3);
+    }
+    #scoreboard table {
+      border-collapse: collapse;
+      width: 100%;
+    }
+    #scoreboard th, #scoreboard td {
+      border: 1px solid #ddd;
+      padding: 4px 8px;
+      text-align: center;
+    }
+    #scoreboard th {
+      background-color: #f2f2f2;
+    }
+  </style>
+</head>
+<body>
+  <div id="colorPicker">
+    <label for="colorSelect">Farbe wählen:</label>
+    <select id="colorSelect">
+      <option value="#e41a1c">Rot</option>
+      <option value="#fb8072">Hellrot</option>
+      <option value="#377eb8">Blau</option>
+      <option value="#a6cee3">Hellblau</option>
+      <option value="#ffdf00">Gelb</option>
+      <option value="#ffffb3">Hellgelb</option>
+      <option value="#bdbdbd">Grau</option>
+    </select>
+  </div>
+
+  <div id="adminToggle">
+    <label><input type="checkbox" id="editMode"> Bearbeitungsmodus (nur für Admin)</label>
+  </div>
+
+  <div id="scoreboard">
+    <table>
+      <thead>
+        <tr><th>Team</th><th>Punkte</th><th>Gesichert</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Team A</td><td id="pointsA">0</td><td id="securedA">0</td></tr>
+        <tr><td>Team B</td><td id="pointsB">0</td><td id="securedB">0</td></tr>
+        <tr><td>Team C</td><td id="pointsC">0</td><td id="securedC">0</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div id="map"></div>
+
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <script>
+    const map = L.map('map').setView([47.999, 7.85], 13);
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; OpenStreetMap contributors'
+    }).addTo(map);
+
+    let selectedLayer = null;
+    let editEnabled = false;
+
+    document.getElementById('editMode').addEventListener('change', function () {
+      if (this.checked) {
+        const pw = prompt("Bitte Admin-Passwort eingeben:");
+        if (pw === "freiburg123") {
+          editEnabled = true;
+          alert("Bearbeitungsmodus aktiviert.");
+        } else {
+          alert("Falsches Passwort!");
+          this.checked = false;
+        }
+      } else {
+        editEnabled = false;
+        selectedLayer = null;
+      }
+    });
+
+    document.getElementById('colorSelect').addEventListener('change', function () {
+      if (selectedLayer && editEnabled) {
+        const selectedColor = this.value;
+        selectedLayer.setStyle({ fillColor: selectedColor });
+        selectedLayer.defaultColor = selectedColor;
+        updateScoreboard();
+      }
+    });
+
+    function updateScoreboard() {
+      let pointsA = 0, securedA = 0;
+      let pointsB = 0, securedB = 0;
+      let pointsC = 0, securedC = 0;
+
+      geojson.eachLayer(layer => {
+        const color = layer.options.fillColor;
+        switch(color) {
+          case '#e41a1c': pointsA++; securedA++; break;
+          case '#fb8072': pointsA++; break;
+          case '#377eb8': pointsB++; securedB++; break;
+          case '#a6cee3': pointsB++; break;
+          case '#ffdf00': pointsC++; securedC++; break;
+          case '#ffffb3': pointsC++; break;
+        }
+      });
+
+      document.getElementById('pointsA').textContent = pointsA;
+      document.getElementById('securedA').textContent = securedA;
+      document.getElementById('pointsB').textContent = pointsB;
+      document.getElementById('securedB').textContent = securedB;
+      document.getElementById('pointsC').textContent = pointsC;
+      document.getElementById('securedC').textContent = securedC;
+    }
+
+    function resetHighlightStyles() {
+      geojson.eachLayer(layer => {
+        const defaultColor = layer.defaultColor || "#bdbdbd";
+        layer.setStyle({
+          weight: 2,
+          color: 'black',
+          fillColor: defaultColor,
+          fillOpacity: 0.6
+        });
+      });
+    }
+
+    function onEachFeature(feature, layer) {
+      layer.on({
+        click: function () {
+          if (!editEnabled) return;
+          resetHighlightStyles();
+          selectedLayer = layer;
+          layer.setStyle({ weight: 5 });
+          document.getElementById('colorSelect').value = selectedLayer.defaultColor;
+        }
+      });
+
+      const center = layer.getBounds().getCenter();
+      const label = L.marker(center, {
+        icon: L.divIcon({
+          className: 'label',
+          html: `<strong>${feature.properties.name}</strong>`,
+          iconSize: [100, 20]
+        })
+      });
+      label.addTo(map);
+    }
+
+    function style(feature) {
+      const color = "#bdbdbd";
+      feature.properties.defaultColor = color;
+      return {
+        fillColor: color,
+        weight: 2,
+        opacity: 1,
+        color: 'black',
+        fillOpacity: 0.6
+      };
+    }
+
+    let geojson;
+
+    fetch('https://raw.githubusercontent.com/codeforgermany/click_that_hood/main/public/data/freiburg.geojson')
+      .then(res => res.json())
+      .then(data => {
+        geojson = L.geoJSON(data, {
+          style: style,
+          onEachFeature: function(feature, layer) {
+            const initialStyle = style(feature);
+            layer.setStyle(initialStyle);
+            layer.defaultColor = initialStyle.fillColor;
+            onEachFeature(feature, layer);
+          }
+        }).addTo(map);
+      });
+  </script>
+</body>
+</html>
