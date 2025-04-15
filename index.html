@@ -220,6 +220,7 @@
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '&copy; OpenStreetMap contributors'
     }).addTo(map);
+    L.control.scale({ position: 'bottomleft', imperial: false }).addTo(map);
 
     let selectedLayer = null;
     let editEnabled = false;
