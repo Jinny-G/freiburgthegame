@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Freiburg Karte mit Punkten & Firebase</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <style>
+    #map { height: 100vh; }
+    #colorPicker, #adminToggle, #scoreboard {
+      position: absolute;
+      background: white;
+      padding: 10px;
+      border-radius: 5px;
+      box-shadow: 0 0 5px rgba(0,0,0,0.3);
+      font-family: sans-serif;
+      z-index: 1000;
+    }
+    #colorPicker { top: 10px; left: 10px; }
+    #adminToggle { top: 10px; left: 220px; }
+    #scoreboard {
+      top: 10px;
+      right: 10px;
+      position: fixed;
+    }
+    #scoreboard table {
+      border-collapse: collapse;
+      width: 100%;
+    }
+    #scoreboard th, #scoreboard td {
+      border: 1px solid #ddd;
+      padding: 4px 8px;
+      text-align: center;
+    }
+    #scoreboard th {
+      background-color: #f2f2f2;
+    }
+  </style>
+</head>
+<body>
+  <div id="colorPicker">
+    <label for="colorSelect">Farbe wählen:</label>
+    <select id="colorSelect">
+      <option value="#e41a1c">Rot</option>
+      <option value="#fb8072">Hellrot</option>
+      <option value="#377eb8">Blau</option>
+      <option value="#a6cee3">Hellblau</option>
+      <option value="#ffdf00">Gelb</option>
+      <option value="#ffffb3">Hellgelb</option>
+      <option value="#bdbdbd">Grau</option>
+    </select>
+  </div>
+
+  <div id="adminToggle">
+    <label><input type="checkbox" id="editMode"> Bearbeitungsmodus (nur für Admin)</label>
+  </div>
+
+  <div id="scoreboard">
+    <table>
+      <thead>
+        <tr><th>Team</th><th>Punkte</th><th>Gesichert</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Team A</td><td id="pointsA">0</td><td id="securedA">0</td></tr>
+        <tr><td>Team B</td><td id="pointsB">0</td><td id="securedB">0</td></tr>
+        <tr><td>Team C</td><td id="pointsC">0</td><td id="securedC">0</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div id="map"></div>
+
+  <!-- Firebase & Leaflet -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js"></script>
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+  <script>
+    // ⬇️ DEIN Firebase-Konfigurationsblock hier einfügen:
+    const firebaseConfig = {
+  apiKey: "AIzaSyCRcsMUKzIG0m1ItnMV2O1mCt4O9Br2_GY",
+  authDomain: "freiburgthegame.firebaseapp.com",
+  projectId: "freiburgthegame",
+  storageBucket: "freiburgthegame.firebasestorage.app",
+  messagingSenderId: "107696847131",
+  appId: "1:107696847131:web:799f0ca624d71b2a9dbbbe"
+    };
+
+    // Firebase initialisieren
+    const app = firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    const map = L.map('map').setView([47.999, 7.85], 13);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; OpenStreetMap contributors'
+    }).addTo(map);
+
+    let selectedLayer = null;
+    let editEnabled = false;
+    let geojson = null;
+
+    document.getElementById('editMode').addEventListener('change', function () {
+      if (this.checked) {
+        const pw = prompt("Bitte Admin-Passwort eingeben:");
+        if (pw === "freiburg123") {
+          editEnabled = true;
+          alert("Bearbeitungsmodus aktiviert.");
+        } else {
+          alert("Falsches Passwort!");
+          this.checked = false;
+        }
+      } else {
+        editEnabled = false;
+        selectedLayer = null;
+      }
+    });
+
+    document.getElementById('colorSelect').addEventListener('change', function () {
+      if (selectedLayer && editEnabled) {
+        const selectedColor = this.value;
+        selectedLayer.setStyle({ fillColor: selectedColor });
+        selectedLayer.defaultColor = selectedColor;
+        saveColor(selectedLayer.feature.properties.name, selectedColor);
+        updateScoreboard();
+      }
+    });
+
+    function saveColor(id, color) {
+      db.collection("farben").doc(id).set({ farbe: color });
+    }
+
+    async function loadColors() {
+      const snapshot = await db.collection("farben").get();
+      const farben = {};
+      snapshot.forEach(doc => {
+        farben[doc.id] = doc.data().farbe;
+      });
+      return farben;
+    }
+
+    function updateScoreboard() {
+      let pointsA = 0, securedA = 0;
+      let pointsB = 0, securedB = 0;
+      let pointsC = 0, securedC = 0;
+
+      geojson.eachLayer(layer => {
+        const color = layer.options.fillColor;
+        switch (color) {
+          case '#e41a1c': pointsA++; securedA++; break;
+          case '#fb8072': pointsA++; break;
+          case '#377eb8': pointsB++; securedB++; break;
+          case '#a6cee3': pointsB++; break;
+          case '#ffdf00': pointsC++; securedC++; break;
+          case '#ffffb3': pointsC++; break;
+        }
+      });
+
+      document.getElementById("pointsA").textContent = pointsA;
+      document.getElementById("securedA").textContent = securedA;
+      document.getElementById("pointsB").textContent = pointsB;
+      document.getElementById("securedB").textContent = securedB;
+      document.getElementById("pointsC").textContent = pointsC;
+      document.getElementById("securedC").textContent = securedC;
+    }
+
+    function onEachFeature(feature, layer) {
+      const id = feature.properties.name;
+
+      layer.on('click', function () {
+        if (!editEnabled) return;
+        geojson.eachLayer(l => l.setStyle({ weight: 2 }));
+        selectedLayer = layer;
+        layer.setStyle({ weight: 5 });
+        document.getElementById('colorSelect').value = layer.defaultColor;
+      });
+
+      const center = layer.getBounds().getCenter();
+      const label = L.marker(center, {
+        icon: L.divIcon({
+          className: 'label',
+          html: `<strong>${id}</strong>`,
+          iconSize: [100, 20]
+        })
+      });
+      label.addTo(map);
+    }
+
+    function styleFeature(color) {
+      return {
+        fillColor: color || '#bdbdbd',
+        weight: 2,
+        opacity: 1,
+        color: 'black',
+        fillOpacity: 0.6
+      };
+    }
+
+    fetch('https://raw.githubusercontent.com/codeforgermany/click_that_hood/main/public/data/freiburg.geojson')
+      .then(res => res.json())
+      .then(async data => {
+        const farben = await loadColors();
+        geojson = L.geoJSON(data, {
+          style: feature => {
+            const id = feature.properties.name;
+            const farbe = farben[id];
+            return styleFeature(farbe);
+          },
+          onEachFeature: function (feature, layer) {
+            const id = feature.properties.name;
+            const farbe = farben[id] || '#bdbdbd';
+            layer.setStyle(styleFeature(farbe));
+            layer.defaultColor = farbe;
+            onEachFeature(feature, layer);
+          }
+        }).addTo(map);
+        updateScoreboard();
+      });
+  </script>
+</body>
+</html>
