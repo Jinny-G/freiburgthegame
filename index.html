@@ -59,7 +59,7 @@
     top: 50px;
     left: 10px;
     right: auto;
-    font-size: 0.9em;
+    font-size: 0.85em;
   }
 
   #colorPicker {
@@ -76,20 +76,21 @@
 #countdown {
   position: fixed;
   top: 10px;
-  left: 70%;
-  transform: translateX(-50%);
+  left: 10px;
   background: white;
-  padding: 10px;
+  padding: 4px 8px;
   font-family: sans-serif;
+  font-size: 0.9em;
   border-radius: 5px;
-  box-shadow: 0 0 5px rgba(0,0,0,0.3);
-  z-index: 1000;
+  box-shadow: 0 0 4px rgba(0,0,0,0.25);
+  z-index: 1100; /* über dem Zoom-Button */
 }
+
+
 
     .leaflet-control-zoom {
-  top: 70px !important;
+  display: none !important;
 }
-
     #colorPicker {
   z-index: 1100; /* höher als 1000 vom scoreboard */
 }
@@ -142,7 +143,7 @@
   </div>
 
 <div id="countdown">
-  ⏳ Zeit bis Spielende: <span id="timer">--:--</span>
+  ⏳ <span id="timer">--:--</span>
 </div>
 
 <div id="adminToggle" style="
