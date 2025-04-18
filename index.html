@@ -128,6 +128,22 @@
   padding: 4px 6px;
   text-align: center;
 }
+
+  /* ✨ Schatz-Icons */
+  .treasure-icon {
+    font-size: 20px;
+    transition: transform 0.2s ease, filter 0.2s ease;
+    cursor: pointer;
+  }
+
+  .treasure-found {
+    filter: grayscale(100%) brightness(150%);
+    transform: scale(1.2);
+  }
+
+ 
+
+
     
   </style>
 </head>
@@ -218,6 +234,22 @@
     // Firebase initialisieren
     const app = firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
+
+    // 💾 Schatzstatus speichern
+function saveTreasureStatus(name, gefunden) {
+  db.collection("schatz").doc(name).set({ gefunden });
+}
+
+// 📥 Schatzstatus laden
+async function loadTreasureStatus() {
+  const snapshot = await db.collection("schatz").get();
+  const status = {};
+  snapshot.forEach(doc => {
+    status[doc.id] = doc.data().gefunden;
+  });
+  return status;
+}
+
 
     const map = L.map('map').setView([47.999, 7.85], 13);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -368,6 +400,92 @@ startCountdown(ziel);
       };
     }
 
+
+    // 🪙 Daten aller Schatzorte
+const treasureData = [
+  { name: "Altstadt", coords: [47.995609, 7.852736] },
+  { name: "Betzenhausen", coords: [48.010556, 7.817778] },
+  { name: "Stühlinger", coords: [47.9975, 7.8375] },
+  { name: "Haslach", coords: [47.9850, 7.8200] },
+  { name: "Weingarten", coords: [47.9800, 7.8200] },
+  { name: "Landwasser", coords: [48.0200, 7.8000] },
+  { name: "Mooswald", coords: [48.0150, 7.8100] },
+  { name: "Herdern", coords: [47.9990, 7.8550] },
+  { name: "Zähringen", coords: [48.0250, 7.8600] },
+  { name: "Brühl-Beurbarung", coords: [48.0300, 7.8500] },
+  { name: "Waldsee", coords: [47.9900, 7.8700] },
+  { name: "Ebnet", coords: [47.9850, 7.8800] },
+  { name: "Littenweiler", coords: [47.9800, 7.8850] },
+  { name: "Oberau", coords: [47.9950, 7.8600] },
+  { name: "Wiehre", coords: [47.9900, 7.8600] },
+  { name: "Neuburg", coords: [47.9950, 7.8500] },
+  { name: "Vauban", coords: [47.9700, 7.8200] },
+  { name: "Rieselfeld", coords: [47.9800, 7.8000] },
+  { name: "Hochdorf", coords: [48.0400, 7.7900] },
+  { name: "Mundenhof", coords: [48.0100, 7.7900] },
+  { name: "Tiengen", coords: [47.9500, 7.7500] },
+  { name: "Munzingen", coords: [47.9400, 7.7200] },
+  { name: "St. Georgen", coords: [47.9600, 7.8100] },
+  { name: "Günterstal", coords: [47.9500, 7.8700] },
+  { name: "Lehen", coords: [48.0100, 7.8000] },
+  { name: "Kappel", coords: [47.9700, 7.8900] },
+  { name: "Waltershofen", coords: [48.0500, 7.7400] },
+  { name: "Opfingen", coords: [48.0000, 7.7700] }
+];
+
+// 💬 Funktion für kleine Zufallsverschiebung
+function randomOffset() {
+  return (Math.random() - 0.5) * 0.0002; // ca. ±10m
+}
+const treasureLayer = L.layerGroup().addTo(map);
+const treasureMarkers = {};
+
+function randomOffset() {
+  return (Math.random() - 0.5) * 0.0002; // ± ca. 10 m
+}
+
+async function initTreasures() {
+  const status = await loadTreasureStatus();
+
+  treasureData.forEach(t => {
+    const lat = t.coords[0] + randomOffset();
+    const lng = t.coords[1] + randomOffset();
+
+    // Goldener Ring
+    L.circle([lat, lng], {
+      radius: 25,
+      color: 'gold',
+      fillOpacity: 0,
+      weight: 2
+    }).addTo(treasureLayer);
+
+    // 🪙 Symbol
+    const icon = L.divIcon({
+      html: `<div class="treasure-icon ${status[t.name] ? 'treasure-found' : ''}" data-name="${t.name}">🪙</div>`,
+      className: '',
+      iconSize: [16, 16],
+      iconAnchor: [8, 8]
+    });
+
+    const marker = L.marker([lat, lng], { icon }).addTo(treasureLayer);
+    treasureMarkers[t.name] = marker;
+  });
+
+  // Interaktiv im Adminmodus
+  map.on('click', e => {
+    if (!editEnabled) return;
+
+    const clicked = e.originalEvent.target;
+    if (clicked.classList.contains("treasure-icon")) {
+      const name = clicked.dataset.name;
+      const found = clicked.classList.toggle("treasure-found");
+      saveTreasureStatus(name, found);
+    }
+  });
+}
+
+initTreasures();
+
     fetch('https://raw.githubusercontent.com/codeforgermany/click_that_hood/main/public/data/freiburg.geojson')
       .then(res => res.json())
       .then(async data => {
@@ -387,6 +505,46 @@ startCountdown(ziel);
           }
         }).addTo(map);
         updateScoreboard();
+        // 🪙 Schatzanzeige vorbereiten
+const treasureLayer = L.layerGroup().addTo(map);
+const treasureMarkers = {};
+const treasureStatus = await loadTreasureStatus(); // Lade Status aus Firebase
+
+treasureData.forEach(t => {
+  const lat = t.coords[0] + randomOffset();
+  const lng = t.coords[1] + randomOffset();
+
+  // Goldener Ring
+  L.circle([lat, lng], {
+    radius: 25,
+    color: 'gold',
+    fillOpacity: 0,
+    weight: 2
+  }).addTo(treasureLayer);
+
+  // 🪙 Symbol
+  const icon = L.divIcon({
+    html: `<div class="treasure-icon ${treasureStatus[t.name] ? 'treasure-found' : ''}" data-name="${t.name}">🪙</div>`,
+    className: '',
+    iconSize: [16, 16],
+    iconAnchor: [8, 8]
+  });
+
+  const marker = L.marker([lat, lng], { icon }).addTo(treasureLayer);
+  treasureMarkers[t.name] = marker;
+});
+// 🖱️ Klick auf Schatzsymbol im Adminmodus
+map.on('click', e => {
+  if (!editEnabled) return;
+
+  const clicked = e.originalEvent.target;
+  if (clicked.classList.contains("treasure-icon")) {
+    const name = clicked.dataset.name;
+    const found = clicked.classList.toggle("treasure-found");
+    saveTreasureStatus(name, found);
+  }
+});
+
       });
 
 
