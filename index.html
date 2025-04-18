@@ -225,6 +225,56 @@
     }).addTo(map);
     L.control.scale({ position: 'bottomleft', imperial: false }).addTo(map);
 
+    const treasureData = [
+  { name: "Altstadt", coords: [47.995609, 7.852736] },
+  { name: "Betzenhausen", coords: [48.010556, 7.817778] },
+  { name: "Stühlinger", coords: [47.997553, 7.837382] },
+  { name: "Haslach", coords: [47.985013, 7.820224] },
+  { name: "Weingarten", coords: [47.980276, 7.820486] },
+  { name: "Landwasser", coords: [48.019794, 7.797476] },
+  { name: "Mooswald", coords: [48.015196, 7.810227] },
+  { name: "Herdern", coords: [47.999097, 7.855046] },
+  { name: "Zähringen", coords: [48.025189, 7.859953] },
+  { name: "Brühl-Beurbarung", coords: [48.030043, 7.850267] },
+  { name: "Waldsee", coords: [47.990078, 7.869813] },
+  { name: "Ebnet", coords: [47.984934, 7.880216] },
+  { name: "Littenweiler", coords: [47.979935, 7.884988] },
+  { name: "Oberau", coords: [47.994899, 7.859846] },
+  { name: "Wiehre", coords: [47.989985, 7.859975] },
+  { name: "Neuburg", coords: [47.994983, 7.849837] },
+  { name: "Vauban", coords: [47.970015, 7.820062] },
+  { name: "Rieselfeld", coords: [47.979911, 7.799983] },
+  { name: "Hochdorf", coords: [48.039864, 7.789804] },
+  { name: "Mundenhof", coords: [48.010129, 7.789905] },
+  { name: "Tiengen", coords: [47.950047, 7.750293] },
+  { name: "Munzingen", coords: [47.939934, 7.719909] },
+  { name: "St. Georgen", coords: [47.960148, 7.809974] },
+  { name: "Günterstal", coords: [47.949922, 7.869997] },
+  { name: "Lehen", coords: [48.009996, 7.799996] },
+  { name: "Kappel", coords: [47.970092, 7.889933] },
+  { name: "Waltershofen", coords: [48.050166, 7.740123] },
+  { name: "Opfingen", coords: [48.000169, 7.770100] }
+];
+
+function randomOffset() {
+  return (Math.random() - 0.5) * 0.0002; // ~ ±10 m
+}
+
+const treasureLayer = L.layerGroup().addTo(map);
+
+treasureData.forEach(t => {
+  const lat = t.coords[0] + randomOffset();
+  const lng = t.coords[1] + randomOffset();
+
+  L.circle([lat, lng], {
+    radius: 25, // 50 m Durchmesser
+    color: 'gold',
+    fillOpacity: 0,
+    weight: 2
+  }).addTo(treasureLayer);
+});
+
+
     let selectedLayer = null;
     let editEnabled = false;
     let geojson = null;
