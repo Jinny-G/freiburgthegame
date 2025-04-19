@@ -265,21 +265,7 @@ function randomOffset() {
   return (Math.random() - 0.5) * 0.0007; // ca. ±10 m
 }
 
-// 💫 Darstellung der Kreise
-treasureSpots.forEach(t => {
-  const offsetLat = t.coords[0] + randomOffset();
-  const offsetLng = t.coords[1] + randomOffset();
-
-  const circle = L.circle([offsetLat, offsetLng], {
-    radius: 200,            // 100 m Durchmesser
-    color: "gold",
-    fillOpacity: 0,        // kein Füllbereich
-    weight: 4              // dicke Ränder
-  });
-
-  circle.bindPopup(`🏙 ${t.name}`);
-  circle.addTo(treasureLayer);
-});
+const treasureCircles = {}; // Name → Leaflet-Circle
 
 
 
@@ -336,6 +322,24 @@ function updateScoreboard() {
 
   geojson.eachLayer(layer => {
     const color = layer.options.fillColor;
+    // 💰 Schatz sichtbar machen, wenn Gebiet nicht grau ist
+if (color !== '#bdbdbd') {
+  const name = layer.feature.properties.name;
+  const spot = treasureSpots.find(s => s.name.startsWith(name));
+  if (spot && !treasureCircles[name]) {
+    const offsetLat = spot.coords[0] + (Math.random() - 0.5) * 0.001;
+    const offsetLng = spot.coords[1] + (Math.random() - 0.5) * 0.001;
+    const circle = L.circle([offsetLat, offsetLng], {
+      radius: 200,
+      color: "gold",
+      fillOpacity: 0,
+      weight: 4
+    });
+    circle.bindPopup(`🏙 ${spot.name}`);
+    circle.addTo(treasureLayer);
+    treasureCircles[name] = circle;
+  }
+}
     switch (color) {
       case '#e41a1c': pointsA++; securedA++; break;
       case '#fb8072': pointsA++; break;
@@ -382,6 +386,8 @@ function resetAllColors() {
       layer.defaultColor = '#bdbdbd';
       saveColor(layer.feature.properties.name, '#bdbdbd');
     });
+    treasureLayer.clearLayers();
+Object.keys(treasureCircles).forEach(k => delete treasureCircles[k]);
     updateScoreboard();
   }
 } // ✅ HIER war bei dir die Klammer **vergessen**!
