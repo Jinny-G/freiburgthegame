@@ -261,7 +261,7 @@ const treasureLayer = L.layerGroup().addTo(map);
 
 // Kleine Zufallsverschiebung (damit nicht zentriert)
 function randomOffset() {
-  return (Math.random() - 0.5) * 0.0002; // ca. ±10 m
+  return (Math.random() - 0.5) * 0.004; // ca. ±10 m
 }
 
 // 💫 Darstellung der Kreise
@@ -270,10 +270,10 @@ treasureSpots.forEach(t => {
   const offsetLng = t.coords[1] + randomOffset();
 
   const circle = L.circle([offsetLat, offsetLng], {
-    radius: 50,            // 100 m Durchmesser
+    radius: 250,            // 100 m Durchmesser
     color: "gold",
     fillOpacity: 0,        // kein Füllbereich
-    weight: 3              // dicke Ränder
+    weight: 4              // dicke Ränder
   });
 
   circle.bindPopup(`🏙 ${t.name}`);
