@@ -171,7 +171,7 @@
   <div id="lootboxToggle" style="
   position: fixed;
   bottom: 20px;
-  right: 70px;
+  right: 90px;
   z-index: 1000;
   cursor: pointer;
   font-size: 24px;
@@ -507,7 +507,150 @@ function closeLootboxPopup() {
   document.getElementById("lootboxPopup").style.display = "none";
 }
 
-  </script>
+    <script>
+// ⭐ Listen der Effekte pro Seltenheit
+const effects = {
+  gewöhnlich: [
+    { name: "Mini-Zeitsplitter", type: "Power-Up", desc: "Verlängert die Aufgabe um 2 Minuten." },
+    { name: "Kurzsicht", type: "Power-Up", desc: "30 Sek. Vorschau auf die nächste Aufgabe." },
+    { name: "Energieriegel", type: "Power-Up", desc: "1 Min. Pause, zählt nicht zur Aufgabenzeit." },
+    { name: "Kompass-Boost", type: "Power-Up", desc: "Himmelsrichtungshinweis erlaubt." },
+    { name: "Wasserflasche", type: "Power-Up", desc: "1 Person darf 3 Min. voraus." },
+    { name: "Flurfunk", type: "Power-Up", desc: "Stellt einem Team eine ehrliche Frage." },
+    { name: "Pfadfinderblick", type: "Power-Up", desc: "1 Ja/Nein-Frage zur Lage erlaubt." },
+    { name: "Orientierungsjoker", type: "Power-Up", desc: "10 Min. Navi-Nutzung erlaubt." },
+    { name: "Blockrunde", type: "Fluch", desc: "Alle müssen einmal um einen Block laufen." },
+    { name: "Drehsinn", type: "Fluch", desc: "10× schnell im Kreis drehen." },
+    { name: "Schneckenmodus light", type: "Fluch", desc: "3 Min. rückwärts laufen." },
+    { name: "Stille Stunde", type: "Fluch", desc: "3 Min. kein Sprechen oder Gestikulieren." },
+    { name: "Klebezettel", type: "Fluch", desc: "Etwas muss auf dem Kopf balanciert werden." },
+    { name: "Blindes Vertrauen", type: "Fluch", desc: "1 Person mit verbundenen Augen (3 Min.)." },
+    { name: "Team-Schnecke", type: "Fluch", desc: "Alle mit einem Finger verbunden." },
+    { name: "Hindernis-Start", type: "Fluch", desc: "Vorher 10 Hampelmänner." }
+  ],
+  selten: [
+    { name: "Zeitsplitter", type: "Power-Up", desc: "5 Minuten mehr Zeit." },
+    { name: "Nebel des Krieges", type: "Power-Up", desc: "Aufgabe abbrechen und neu starten." },
+    { name: "Deal des Teufels", type: "Power-Up", desc: "Würfeln – Chance auf bessere Effekte." },
+    { name: "Routenreset", type: "Power-Up", desc: "Aufgabe abbrechen ohne Konsequenz." },
+    { name: "Späherblick", type: "Power-Up", desc: "Hinweis zur Lage eines Schatzes." },
+    { name: "Straßensperre", type: "Fluch", desc: "1 Gebiet 15 Min. gesperrt." },
+    { name: "Schneckenmodus", type: "Fluch", desc: "5 Min. rückwärts laufen." },
+    { name: "Blackout", type: "Fluch", desc: "10 Min. kein Kontakt zur Zentrale." },
+    { name: "Konfusion", type: "Fluch", desc: "Nur Papierkarte für 15 Min." },
+    { name: "Schweigezauber", type: "Fluch", desc: "5 Min. totale Funkstille." }
+  ],
+  episch: [
+    { name: "Wegweiser", type: "Power-Up", desc: "Aufgabe vorab einsehen." },
+    { name: "Sprintschub", type: "Power-Up", desc: "10 Bonusminuten." },
+    { name: "Barrikade", type: "Power-Up", desc: "1 Gebiet 30 Min. blockieren." },
+    { name: "Zeitschleife", type: "Fluch", desc: "Letzte Aufgabe nochmal machen." },
+    { name: "Ausrüstungsfluch", type: "Fluch", desc: "Handicap-Aufgabe (z.B. blind)." },
+    { name: "Nebelzone", type: "Fluch", desc: "10 Min. keine Karten erlaubt." }
+  ],
+  legendär: [
+    { name: "Schattenläufer", type: "Power-Up", desc: "Gebiet klauen ohne Aufgabe." },
+    { name: "Blitz des Zeus", type: "Power-Up", desc: "Gebiet aus der Ferne erobern." },
+    { name: "Blizzard", type: "Fluch", desc: "Alle anderen stehen 15 Min. still." },
+    { name: "Sonnenwind", type: "Fluch", desc: "20 Min. kein Google Maps." }
+  ],
+  mystisch: [
+    { name: "Göttliche Gunst", type: "Power-Up", desc: "+1 Punkt sofort." },
+    { name: "Fluch der Tiefe", type: "Fluch", desc: "-1 Punkt für Gegner." }
+  ]
+};
+
+// Wahrscheinlichkeiten
+const lootChances = {
+  bronze: [70, 20, 9, 1, 0],
+  silber: [45, 35, 15, 4, 1],
+  gold: [15, 30, 35, 15, 5]
+};
+
+function selectLootbox(tier) {
+  const confirmOpen = confirm(`Möchtest du eine ${tier}-Lootbox wirklich öffnen?`);
+  if (!confirmOpen) return;
+
+  // Truhe zentrieren und animieren
+  const content = document.getElementById("lootboxContent");
+  content.innerHTML = `
+    <div id="box" class="shake-${tier}" style="font-size: 72px; transition: all 0.3s;">${tier === "bronze" ? "🟫" : tier === "silber" ? "⬜" : "🟨"}</div>
+    <div id="result" style="margin-top: 20px;"></div>
+  `;
+
+  // Nach 5 Sekunden: Effekt ziehen
+  setTimeout(() => {
+    const rarity = drawRarity(lootChances[tier]);
+    const list = effects[rarity];
+    const drawn = list[Math.floor(Math.random() * list.length)];
+
+    const borderColor = {
+      gewöhnlich: "gray",
+      selten: "blue",
+      episch: "purple",
+      legendär: "gold",
+      mystisch: "turquoise"
+    }[rarity];
+
+    const result = `
+      <div style="
+        border: 4px solid ${borderColor};
+        border-radius: 12px;
+        padding: 10px;
+        position: relative;
+        background: white;
+        margin-top: 10px;
+        font-family: sans-serif;
+        box-shadow: 0 0 10px ${borderColor};
+      ">
+        <div style="font-size: 12px; font-weight: bold; color: ${borderColor};">${drawn.type} – ${rarity.toUpperCase()}</div>
+        <div style="font-size: 18px; font-weight: bold;">${drawn.name}</div>
+        <div style="font-size: 14px; margin-top: 5px;">${drawn.desc}</div>
+        <div class="sparkle-container"></div>
+      </div>
+    `;
+    document.getElementById("result").innerHTML = result;
+    generateSparkles();
+  }, 5000);
+}
+
+function drawRarity(chances) {
+  const roll = Math.random() * 100;
+  let cumulative = 0;
+  const rarities = ["gewöhnlich", "selten", "episch", "legendär", "mystisch"];
+  for (let i = 0; i < chances.length; i++) {
+    cumulative += chances[i];
+    if (roll < cumulative) return rarities[i];
+  }
+  return "gewöhnlich";
+}
+
+function generateSparkles() {
+  const container = document.querySelector(".sparkle-container");
+  for (let i = 0; i < 64; i++) {
+    const dot = document.createElement("div");
+    dot.style.position = "absolute";
+    dot.style.width = "4px";
+    dot.style.height = "4px";
+    dot.style.borderRadius = "50%";
+    dot.style.background = "gold";
+    dot.style.animation = `twinkle 1s ${Math.random()}s infinite alternate`;
+    dot.style.left = `${Math.random() * 100}%`;
+    dot.style.top = `${Math.random() * 100}%`;
+    container.appendChild(dot);
+  }
+}
+</script>
+
+<style>
+@keyframes twinkle {
+  from { opacity: 0.2; transform: scale(0.8); }
+  to { opacity: 1; transform: scale(1.2); }
+}
+</style>
+
+
+
   
 <div id="resetButton" class="adminOnly" style="
   position: fixed;
