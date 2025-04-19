@@ -1020,7 +1020,7 @@ function generateSparkles() {
     if (!obj.iconMarker) return;
 
     // Faustregel: ab Zoomstufe 17 sind Kreise > Bildschirm
-    if (zoom >= 17) {
+    if (zoom >= 14) {
       map.removeLayer(obj.iconMarker);
     } else {
       if (!map.hasLayer(obj.iconMarker)) {
