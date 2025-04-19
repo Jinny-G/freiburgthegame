@@ -225,6 +225,50 @@
     }).addTo(map);
     L.control.scale({ position: 'bottomleft', imperial: false }).addTo(map);
 
+    const treasures = [
+  { name: "Altstadt", coords: [47.995539, 7.852289] },
+  { name: "Betzenhausen", coords: [48.008275, 7.818451] },
+  { name: "Stühlinger", coords: [47.997160, 7.835555] },
+  { name: "Haslach", coords: [47.985071, 7.820395] },
+  { name: "Weingarten", coords: [47.979800, 7.822600] },
+  { name: "Landwasser", coords: [48.021070, 7.796947] },
+  { name: "Mooswald", coords: [48.013507, 7.812490] },
+  { name: "Herdern", coords: [47.999232, 7.855465] },
+  { name: "Zähringen", coords: [48.025499, 7.860663] },
+  { name: "Brühl-Beurbarung", coords: [48.029617, 7.846326] },
+  { name: "Waldsee", coords: [47.990256, 7.869625] },
+  { name: "Ebnet", coords: [47.985016, 7.879821] },
+  { name: "Littenweiler", coords: [47.980098, 7.883937] },
+  { name: "Oberau", coords: [47.995043, 7.860061] },
+  { name: "Wiehre", coords: [47.989919, 7.860019] },
+  { name: "Neuburg", coords: [47.995018, 7.849766] },
+  { name: "Vauban", coords: [47.970027, 7.820100] },
+  { name: "Rieselfeld", coords: [47.980049, 7.800346] },
+  { name: "Hochdorf", coords: [48.040218, 7.789662] },
+  { name: "Mundenhof", coords: [48.010051, 7.789889] },
+  { name: "Tiengen", coords: [47.950128, 7.750175] },
+  { name: "Munzingen", coords: [47.939982, 7.719956] },
+  { name: "St. Georgen", coords: [47.960229, 7.809980] },
+  { name: "Günterstal", coords: [47.949879, 7.869876] },
+  { name: "Lehen", coords: [48.010055, 7.799984] },
+  { name: "Kappel", coords: [47.970125, 7.889968] },
+  { name: "Waltershofen", coords: [48.050234, 7.739975] },
+  { name: "Opfingen", coords: [48.000137, 7.770128] }
+];
+
+const treasureLayer = L.layerGroup().addTo(map);
+
+treasures.forEach(t => {
+  const icon = L.divIcon({
+    html: `<div style="opacity: 0.6; font-size: 20px;">🪙</div>`,
+    className: '',
+    iconSize: [20, 20],
+    iconAnchor: [10, 10]
+  });
+
+  L.marker(t.coords, { icon }).addTo(treasureLayer);
+});
+
 
 
     let selectedLayer = null;
