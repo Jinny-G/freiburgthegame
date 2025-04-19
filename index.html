@@ -225,27 +225,59 @@
     }).addTo(map);
     L.control.scale({ position: 'bottomleft', imperial: false }).addTo(map);
 
-  const treasures = [
-  { name: "Altstadt", coords: [47.995548248291016, 7.8531999588012695] },
-  { name: "Betzenhausen", coords: [48.01245880126953, 7.813791275024414] },
-  { name: "Brühl-Beurbarung", coords: [48.012932015479045, 7.8489899976] },
-  { name: "Stühlinger", coords: [47.996063232421875, 7.8398661613464255] },
-  { name: "Haslach", coords: [47.988796941918416, 7.811774721465512] },
-  { name: "Weingarten", coords: [48.007653968066464, 7.805664261338867] },
-  { name: "Landwasser", coords: [48.02811542612249, 7.80696873379676] }
+  // 🗺️ Schatzorte mit präzisen Koordinaten
+const treasureSpots = [
+  { name: "Altstadt (Freiburger Münster)", coords: [47.995548248291016, 7.8531999588012695] },
+  { name: "Betzenhausen (Japanischer Garten)", coords: [48.01245880126953, 7.813791275024414] },
+  { name: "Stühlinger (Blaue Brücke)", coords: [47.99646947182226, 7.838819150739069] },
+  { name: "Haslach (Waldspielplatz)", coords: [47.988796941918416, 7.811774721465512] },
+  { name: "Weingarten (Gaskugel)", coords: [48.00702280887342, 7.804487814528058] },
+  { name: "Landwasser (Seepark Tower)", coords: [48.02811542612249, 7.80696873379676] },
+  { name: "Mooswald (Hochhaus Paduaweg)", coords: [48.013505996719296, 7.823352681209208] },
+  { name: "Neuburg (Stadtgarten Spielplatz)", coords: [47.99768428876982, 7.856441397531033] },
+  { name: "Herdern (Botanischer Garten)", coords: [48.0101034491257, 7.85749627329825] },
+  { name: "Zähringen (Fritz-Ginter-Park)", coords: [48.01879548543632, 7.867117293352051] },
+  { name: "Waldsee (Waldseebad)", coords: [47.98291519443326, 7.876265114810983] },
+  { name: "Ebnet (Schloss Ebnet)", coords: [47.987220468758046, 7.901599441342606] },
+  { name: "Littenweiler (PH Eingang)", coords: [47.98132721761629, 7.894480075731445] },
+  { name: "Oberau (Kanonenplatz)", coords: [47.99319553912247, 7.857126886380237] },
+  { name: "Wiehre (Alter Wiehrebahnhof)", coords: [47.984827888053914, 7.853200967459961] },
+  { name: "Vauban (Heliotrop)", coords: [47.9733205811768, 7.833456637083502] },
+  { name: "Rieselfeld (Turnhallendach)", coords: [48.000325753018, 7.79188686901259] },
+  { name: "Hochdorf (Kleingärten)", coords: [48.038001580879815, 7.796690798469461] },
+  { name: "Mundenhof (ZMF)", coords: [48.008807752230744, 7.781192620615074] },
+  { name: "Tiengen (Tuniberg)", coords: [47.986525385031705, 7.696442390579468] },
+  { name: "Munzingen (Schloss)", coords: [47.97037260988398, 7.698656526628573] },
+  { name: "St. Georgen (Freibad)", coords: [47.9787038095916, 7.806901480520931] },
+  { name: "Günterstal (Waldhaus)", coords: [47.97237823036576, 7.842995795051313] },
+  { name: "Lehen (Botanischer Garten)", coords: [48.017059224014965, 7.797066417311811] },
+  { name: "Kappel (Berglehof)", coords: [47.974143359784385, 7.909831391771962] },
+  { name: "Waltershofen (Friedhof)", coords: [48.0217394368563, 7.720574992172371] },
+  { name: "Opfingen (Opfinger See)", coords: [47.99999151975894, 7.750699364169189] }
 ];
 
+// 🪙 Layer für die Schatzanzeige
 const treasureLayer = L.layerGroup().addTo(map);
 
-treasures.forEach(t => {
-  const icon = L.divIcon({
-    html: `<div style="opacity: 0.6; font-size: 20px;">🪙</div>`,
-    className: '',
-    iconSize: [20 , 20],
-    iconAnchor: [10, 10]
+// Kleine Zufallsverschiebung (damit nicht zentriert)
+function randomOffset() {
+  return (Math.random() - 0.5) * 0.0002; // ca. ±10 m
+}
+
+// 💫 Darstellung der Kreise
+treasureSpots.forEach(t => {
+  const offsetLat = t.coords[0] + randomOffset();
+  const offsetLng = t.coords[1] + randomOffset();
+
+  const circle = L.circle([offsetLat, offsetLng], {
+    radius: 50,            // 100 m Durchmesser
+    color: "gold",
+    fillOpacity: 0,        // kein Füllbereich
+    weight: 3              // dicke Ränder
   });
 
-  L.marker(t.coords, { icon }).addTo(treasureLayer);
+  circle.bindPopup(`🏙 ${t.name}`);
+  circle.addTo(treasureLayer);
 });
 
 
