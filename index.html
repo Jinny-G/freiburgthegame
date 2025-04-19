@@ -167,6 +167,25 @@
 ">
   <span id="lockIcon">🔒</span>
 </div>
+
+  <div id="lootboxToggle" style="
+  position: fixed;
+  bottom: 20px;
+  right: 70px;
+  z-index: 1000;
+  cursor: pointer;
+  font-size: 24px;
+  background: white;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  box-shadow: 0 0 5px rgba(0,0,0,0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+">
+  <span id="lootboxIcon">🎁</span>
+</div>
   
 <div id="scoreboard">
   <table>
@@ -291,6 +310,16 @@ document.getElementById("adminToggle").addEventListener("click", function () {
     alert("Bearbeitungsmodus deaktiviert.");
   }
 });
+
+    document.getElementById("lootboxToggle").addEventListener("click", function () {
+  const pw = prompt("Bitte Passwort für Lootbox eingeben:");
+  if (pw === "lootbox987") {
+    openLootboxPopup();
+  } else {
+    alert("Falsches Passwort!");
+  }
+});
+
 
     document.getElementById('colorSelect').addEventListener('change', function () {
       if (selectedLayer && editEnabled) {
@@ -453,6 +482,30 @@ startCountdown(ziel);
         updateScoreboard();
       });
 
+function openLootboxPopup() {
+  document.getElementById("lootboxContent").innerHTML = `
+    <h3>Wähle eine Truhe:</h3>
+    <div style="display: flex; justify-content: space-around; margin-top: 10px;">
+      <div onclick="selectLootbox('bronze')" style="cursor:pointer;">
+        <div style="font-size: 12px; color: #888;">30 FR€</div>
+        <div style="font-size: 32px;">🟫</div>
+      </div>
+      <div onclick="selectLootbox('silber')" style="cursor:pointer;">
+        <div style="font-size: 12px; color: #888;">70 FR€</div>
+        <div style="font-size: 32px;">⬜</div>
+      </div>
+      <div onclick="selectLootbox('gold')" style="cursor:pointer;">
+        <div style="font-size: 12px; color: #888;">150 FR€</div>
+        <div style="font-size: 32px;">🟨</div>
+      </div>
+    </div>
+  `;
+  document.getElementById("lootboxPopup").style.display = "block";
+}
+
+function closeLootboxPopup() {
+  document.getElementById("lootboxPopup").style.display = "none";
+}
 
   </script>
   
@@ -469,5 +522,25 @@ startCountdown(ziel);
   <button onclick="resetAllColors()">🔁 Karte zurücksetzen</button>
 </div>
 
+<div id="lootboxPopup" style="
+  display: none;
+  position: fixed;
+  top: 10%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: white;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 0 15px rgba(0,0,0,0.3);
+  z-index: 2000;
+  font-family: sans-serif;
+  width: 320px;
+  text-align: center;
+">
+  <div id="lootboxContent"></div>
+  <button onclick="closeLootboxPopup()">✖️ Schließen</button>
+</div>
+
+  
 </body>
 </html>
