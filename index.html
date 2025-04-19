@@ -562,54 +562,286 @@ function closeLootboxPopup() {
 
 // ⭐ Listen der Effekte pro Seltenheit
 const effects = {
-  gewöhnlich: [
-    { name: "Mini-Zeitsplitter", type: "Power-Up", desc: "Verlängert die Aufgabe um 2 Minuten." },
-    { name: "Kurzsicht", type: "Power-Up", desc: "30 Sek. Vorschau auf die nächste Aufgabe." },
-    { name: "Energieriegel", type: "Power-Up", desc: "1 Min. Pause, zählt nicht zur Aufgabenzeit." },
-    { name: "Kompass-Boost", type: "Power-Up", desc: "Himmelsrichtungshinweis erlaubt." },
-    { name: "Wasserflasche", type: "Power-Up", desc: "1 Person darf 3 Min. voraus." },
-    { name: "Flurfunk", type: "Power-Up", desc: "Stellt einem Team eine ehrliche Frage." },
-    { name: "Pfadfinderblick", type: "Power-Up", desc: "1 Ja/Nein-Frage zur Lage erlaubt." },
-    { name: "Orientierungsjoker", type: "Power-Up", desc: "10 Min. Navi-Nutzung erlaubt." },
-    { name: "Blockrunde", type: "Fluch", desc: "Alle müssen einmal um einen Block laufen." },
-    { name: "Drehsinn", type: "Fluch", desc: "10× schnell im Kreis drehen." },
-    { name: "Schneckenmodus light", type: "Fluch", desc: "3 Min. rückwärts laufen." },
-    { name: "Stille Stunde", type: "Fluch", desc: "3 Min. kein Sprechen oder Gestikulieren." },
-    { name: "Klebezettel", type: "Fluch", desc: "Etwas muss auf dem Kopf balanciert werden." },
-    { name: "Blindes Vertrauen", type: "Fluch", desc: "1 Person mit verbundenen Augen (3 Min.)." },
-    { name: "Team-Schnecke", type: "Fluch", desc: "Alle mit einem Finger verbunden." },
-    { name: "Hindernis-Start", type: "Fluch", desc: "Vorher 10 Hampelmänner." }
-  ],
-  selten: [
-    { name: "Zeitsplitter", type: "Power-Up", desc: "5 Minuten mehr Zeit." },
-    { name: "Nebel des Krieges", type: "Power-Up", desc: "Aufgabe abbrechen und neu starten." },
-    { name: "Deal des Teufels", type: "Power-Up", desc: "Würfeln – Chance auf bessere Effekte." },
-    { name: "Routenreset", type: "Power-Up", desc: "Aufgabe abbrechen ohne Konsequenz." },
-    { name: "Späherblick", type: "Power-Up", desc: "Hinweis zur Lage eines Schatzes." },
-    { name: "Straßensperre", type: "Fluch", desc: "1 Gebiet 15 Min. gesperrt." },
-    { name: "Schneckenmodus", type: "Fluch", desc: "5 Min. rückwärts laufen." },
-    { name: "Blackout", type: "Fluch", desc: "10 Min. kein Kontakt zur Zentrale." },
-    { name: "Konfusion", type: "Fluch", desc: "Nur Papierkarte für 15 Min." },
-    { name: "Schweigezauber", type: "Fluch", desc: "5 Min. totale Funkstille." }
-  ],
-  episch: [
-    { name: "Wegweiser", type: "Power-Up", desc: "Aufgabe vorab einsehen." },
-    { name: "Sprintschub", type: "Power-Up", desc: "10 Bonusminuten." },
-    { name: "Barrikade", type: "Power-Up", desc: "1 Gebiet 30 Min. blockieren." },
-    { name: "Zeitschleife", type: "Fluch", desc: "Letzte Aufgabe nochmal machen." },
-    { name: "Ausrüstungsfluch", type: "Fluch", desc: "Handicap-Aufgabe (z.B. blind)." },
-    { name: "Nebelzone", type: "Fluch", desc: "10 Min. keine Karten erlaubt." }
-  ],
-  legendär: [
-    { name: "Schattenläufer", type: "Power-Up", desc: "Gebiet klauen ohne Aufgabe." },
-    { name: "Blitz des Zeus", type: "Power-Up", desc: "Gebiet aus der Ferne erobern." },
-    { name: "Blizzard", type: "Fluch", desc: "Alle anderen stehen 15 Min. still." },
-    { name: "Sonnenwind", type: "Fluch", desc: "20 Min. kein Google Maps." }
-  ],
-  mystisch: [
-    { name: "Göttliche Gunst", type: "Power-Up", desc: "+1 Punkt sofort." },
-    { name: "Fluch der Tiefe", type: "Fluch", desc: "-1 Punkt für Gegner." }
-  ]
+gewöhnlich: [
+  {
+    name: "Mini-Zeitsplitter",
+    type: "Power-Up",
+    desc: "Verlängert die Aufgabe um 2 Minuten.",
+    short: "2 Minuten zusätzlich zur Zeit.",
+    rule: "Nur bei aktiver Aufgabe einsetzbar."
+  },
+  {
+    name: "Kurzsicht",
+    type: "Power-Up",
+    desc: "20 Sek. Vorschau auf die nächste Aufgabe.",
+    short: "Die Aufgabe wird dadurch nicht aktiv.",
+    rule: "Nur einmal pro Spiel erlaubt."
+  },
+  {
+    name: "Energieriegel",
+    type: "Power-Up",
+    desc: "1 Min. Pause, zählt nicht zur Aufgabenzeit.",
+    short: "1 Minute Durchatmen ohne Zeitverlust.",
+    rule: "Pause muss durch Video belegt sein."
+  },
+  {
+    name: "Kompass-Boost",
+    type: "Power-Up",
+    desc: "Himmelsrichtungshinweis erlaubt.",
+    short: "Spielleitung nennt eine Himmelsrichtung.",
+    rule: "Nur auf Nachfrage direkt nach dem Ziehen."
+  },
+  {
+    name: "Wasserflasche",
+    type: "Power-Up",
+    desc: "1 Person darf 3 Min. voraus.",
+    short: "1 Läufer darf 3 Min. vorgehen.",
+    rule: "Nur auf offener Strecke erlaubt."
+  },
+  {
+    name: "Flurfunk",
+    type: "Power-Up",
+    desc: "Stellt einem Team eine ehrliche Frage.",
+    short: "1 ehrliche Info von anderem Team.",
+    rule: "Frage muss klar, direkt und eindeutig sein."
+  },
+  {
+    name: "Pfadfinderblick",
+    type: "Power-Up",
+    desc: "1 Ja/Nein-Frage zur Lage erlaubt.",
+    short: "Spielleitung beantwortet 1 Lagefrage.",
+    rule: "Frage darf keine Ortsnamen enthalten."
+  },
+  {
+    name: "Orientierungsjoker",
+    type: "Power-Up",
+    desc: "10 Min. Navi-Nutzung erlaubt.",
+    short: "Navigation 10 Min. frei trotz Fluch.",
+    rule: "Gilt auch unter Karten-Verbot."
+  },
+  {
+    name: "Blockrunde",
+    type: "Fluch",
+    desc: "Alle müssen einmal um einen Block laufen.",
+    short: "Einmal gemeinsam um ein Häuserblock.",
+    rule: "Video muss Start und Ziel klar zeigen."
+  },
+  {
+    name: "Drehsinn",
+    type: "Fluch",
+    desc: "10× schnell im Kreis drehen mit blick auf die Zehenspitzen.",
+    short: "10 schnelle Drehungen pro Person.",
+    rule: "Vor der Aufgabe, unter Aufsicht."
+  },
+  {
+    name: "Kolibrimodus",
+    type: "Fluch",
+    desc: "3 Min. rückwärts laufen.",
+    short: "3 Minuten Rückwärtsgang aktiv.",
+    rule: "Gilt für die gesamte Gruppe."
+  },
+  {
+    name: "Stille Stunde",
+    type: "Fluch",
+    desc: "3 Min. kein Sprechen oder Gestikulieren.",
+    short: "3 Minuten komplett stumm.",
+    rule: "Verstoss führt zu Neuanfang."
+  },
+  {
+    name: "Klebezettel",
+    type: "Fluch",
+    desc: "Etwas muss auf dem Kopf balanciert werden.",
+    short: "Fällt der Gegenstand während der Aufgabe, ist sie gescheitert.",
+    rule: "Kein Festkleben oder Abstützen erlaubt."
+  },
+  {
+    name: "Blindes Vertrauen",
+    type: "Fluch",
+    desc: "3 Personen mit verbundenen Augen (5 Min.).",
+    short: "Für 5 Minuten dürfen 3 aus dem Team nichts sehen.",
+    rule: "Muss von anderen geführt werden."
+  },
+  {
+    name: "Team-Schnecke",
+    type: "Fluch",
+    desc: "Alle mit einem Finger verbunden für 2 min.",
+    short: "Zeigefingerkette",
+    rule: "Verbindung darf nie reißen."
+  },
+  {
+    name: "Hindernis-Start",
+    type: "Fluch",
+    desc: "Vorher 10 Hampelmänner.",
+    short: "Bevor’s losgeht: 10 Hampelmänner.",
+    rule: "Alle gleichzeitig, im Video ersichtlich."
+  }
+],
+
+selten: [
+  {
+    name: "Zeitsplitter",
+    type: "Power-Up",
+    desc: "5 Minuten mehr Zeit.",
+    short: "Verlängert die Aufgabe.",
+    rule: "Einmal pro Aufgabe einlösbar."
+  },
+  {
+    name: "Nebel des Krieges",
+    type: "Power-Up",
+    desc: "Aufgabe abbrechen und neu starten.",
+    short: "Reset-Karte für schwierige Aufgaben.",
+    rule: "Nur bei nicht begonnenen Aufgaben erlaubt."
+  },
+  {
+    name: "Deal des Teufels",
+    type: "Power-Up",
+    desc: "Würfeln – Chance auf bessere Effekte.",
+    short: "1: Bronze, 2-4: Silber, 5-6: Gold",
+    rule: "Nutze eine Lootbox entsprechend der Augenzahl."
+  },
+  {
+    name: "Routenreset",
+    type: "Power-Up",
+    desc: "Aufgabe abbrechen ohne Konsequenz.",
+    short: "Aufgabe kann neu begonnen werden.",
+    rule: "Nicht kombinierbar mit Schatzfund."
+  },
+  {
+    name: "Späherblick",
+    type: "Power-Up",
+    desc: "Hinweis zur Lage eines Schatzes.",
+    short: "Erhalte eine Schatz-Koordinatenhilfe.",
+    rule: "Spielleitung gibt Koordinaten des Schates an."
+  },
+  {
+    name: "Straßensperre",
+    type: "Fluch",
+    desc: "1 Gebiet 15 Min. gesperrt.",
+    short: "Blockiert ein fremdes Gebiet.",
+    rule: "Nur in einem angrenzenden Gebiet anwendbar."
+  },
+  {
+    name: "Schneckenmodus",
+    type: "Fluch",
+    desc: "5 Min. rückwärts laufen.",
+    short: "Bewegung wird erschwert.",
+    rule: "Gilt für alle Teammitglieder gleichzeitig."
+  },
+  {
+    name: "Blackout",
+    type: "Fluch",
+    desc: "10 Min. kein Kontakt zur Zentrale.",
+    short: "Team darf keine Nachrichten senden/empfangen.",
+    rule: "Startet mit dem Ziehen des Fluchs."
+  },
+  {
+    name: "Konfusion",
+    type: "Fluch",
+    desc: "Nur Papierkarte für 15 Min.",
+    short: "Digitale Hilfsmittel verboten.",
+    rule: "Spielleitung prüft Einhaltung."
+  },
+  {
+    name: "Schweigezauber",
+    type: "Fluch",
+    desc: "5 Min. totale Funkstille.",
+    short: "Kein Reden, Schreiben oder Zeigen erlaubt.",
+    rule: "Abbruch führt zur Aufgabe-Neuversuchspflicht."
+  }
+],
+
+episch: [
+  {
+    name: "Wegweiser",
+    type: "Power-Up",
+    desc: "Aufgabe vorab einsehen.",
+    short: "Spoiler-Vorschau.",
+    rule: "30 Sekunden Einsicht in die Aufgabe."
+  },
+  {
+    name: "Sprintschub",
+    type: "Power-Up",
+    desc: "10 Bonusminuten.",
+    short: "Mehr Zeit für die laufende Aufgabe.",
+    rule: "Nur bei laufender Aufgabe einsetzbar."
+  },
+  {
+    name: "Barrikade",
+    type: "Power-Up",
+    desc: "1 Gebiet 30 Min. blockieren.",
+    short: "Sperrt ein beliebiges Gebiet temporär.",
+    rule: "Nur in Stadtteilen erlaubt, die kein Team besitzt."
+  },
+  {
+    name: "Zeitschleife",
+    type: "Fluch",
+    desc: "Letzte Aufgabe nochmal machen.",
+    short: "Zweite Runde für dieselbe Challenge.",
+    rule: "Gilt auch bei bereits bestandenem Versuch."
+  },
+  {
+    name: "Ausrüstungsfluch",
+    type: "Fluch",
+    desc: "Handicap-Aufgabe (z. B. blind, einbeinig, ...).",
+    short: "Erschwerte Ausführung.",
+    rule: "Spielleitung bestimmt das Handicap live."
+  },
+  {
+    name: "Nebelzone",
+    type: "Fluch",
+    desc: "10 Min. keine Karten erlaubt.",
+    short: "Navigation im Blindflug.",
+    rule: "Weder digital noch analog erlaubt."
+  }
+],
+
+legendär: [
+  {
+    name: "Schattenläufer",
+    type: "Power-Up",
+    desc: "Gebiet klauen ohne Aufgabe.",
+    short: "Heimlicher Eroberer.",
+    rule: "Man muss sich in dem Gebiet befinden."
+  },
+  {
+    name: "Blitz des Zeus",
+    type: "Power-Up",
+    desc: "Gebiet aus der Ferne erobern.",
+    short: "Fern-Eroberung.",
+    rule: "Nur 1× im Spiel verwendbar – Team muss nicht vor Ort sein."
+  },
+  {
+    name: "Blizzard",
+    type: "Fluch",
+    desc: "Alle anderen bleiben 15 Min. an einem Ort.",
+    short: "Gefriert alle Gegner.",
+    rule: "Countdown beginnt sofort, Bewegtbilder sind verboten."
+  },
+  {
+    name: "Sonnenwind",
+    type: "Fluch",
+    desc: "20 Min. kein Google Maps.",
+    short: "Digitaler Navigationsausfall.",
+    rule: "Digitale Navigation gesperrt, nur Papierkarten erlaubt."
+  }
+],
+ mystisch: [
+  {
+    name: "Göttliche Gunst",
+    type: "Power-Up",
+    desc: "+1 Punkt sofort.",
+    short: "Himmlischer Segen.",
+    rule: "Einmalig einsetzbar – sofort +1 Punkt für das eigene Team."
+  },
+  {
+    name: "Fluch der Tiefe",
+    type: "Fluch",
+    desc: "-1 Punkt für Gegner.",
+    short: "Dunkle Macht.",
+    rule: "Einmalig einsetzbar – wählt ein anderes Team, das 1 Punkt verliert."
+  }
+]
+
 };
 
 // Wahrscheinlichkeiten
@@ -678,14 +910,28 @@ const result = `
     box-shadow: 0 0 10px ${borderColor};
     transition: background 0.5s ease;
   ">
-    <div style="font-size: 12px; font-weight: bold; color: ${borderColor};">${drawn.type} – ${rarity.toUpperCase()}</div>
-    <div style="font-size: 18px; font-weight: bold;">${drawn.name}</div>
-    <div style="font-size: 14px; margin-top: 5px;">${drawn.desc}</div>
+    <div style="font-size: 12px; font-weight: bold; color: ${borderColor};">
+      ${drawn.type} – ${rarity.toUpperCase()}
+    </div>
+    <div style="font-size: 18px; font-weight: bold; margin-top: 5px;">
+      ${drawn.name}
+    </div>
+    <div style="font-size: 14px; margin-top: 5px;">
+      ${drawn.desc}
+    </div>
+    <div style="font-size: 13px; margin-top: 8px; font-style: italic; color: #333;">
+      💬 ${drawn.short}
+    </div>
+    <div style="font-size: 12px; margin-top: 5px; color: #555;">
+      📜 <strong>Miniregel:</strong> ${drawn.rule}
+    </div>
     <div class="sparkle-container"></div>
   </div>
 `;
+
 document.getElementById("result").innerHTML = result;
 generateSparkles();
+
 
   }, 700); // kurze Pause nach Deckelanimation
 }, 5000); // nach dem Zittern
