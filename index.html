@@ -394,6 +394,7 @@ document.getElementById("adminToggle").addEventListener("click", function () {
         selectedLayer.defaultColor = selectedColor;
         saveColor(selectedLayer.feature.properties.name, selectedColor);
         updateScoreboard();
+        updateTreasureVisibility(); 
       }
     });
 
