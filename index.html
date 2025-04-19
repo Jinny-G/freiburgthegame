@@ -305,6 +305,7 @@
       attribution: '&copy; OpenStreetMap contributors'
     }).addTo(map);
     L.control.scale({ position: 'bottomleft', imperial: false }).addTo(map);
+    map.on("zoomend", updateTreasureVisibility);
 
   // 🗺️ Schatzorte mit präzisen Koordinaten
 const treasureSpots = [
@@ -436,7 +437,8 @@ const icon = L.divIcon({
   iconSize: [24, 24],
   iconAnchor: [12, 30] // leicht über dem Kreis
 });
-const iconMarker = L.marker([offsetLat - 0.0008, offsetLng], { icon }).addTo(treasureLayer);
+const iconMarker = L.marker([offsetLat, offsetLng], { icon })
+.addTo(treasureLayer);
 
     iconMarker.bindTooltip(spot.name, {
   permanent: false,
@@ -570,6 +572,7 @@ startCountdown(ziel);
           }
         }).addTo(map);
         updateScoreboard();
+        updateTreasureVisibility();  
       });
 
 function openLootboxPopup() {
@@ -1009,6 +1012,24 @@ function generateSparkles() {
 }, 10000);
 
 }
+
+    function updateTreasureVisibility() {
+  const zoom = map.getZoom();
+
+  Object.values(treasureCircles).forEach(obj => {
+    if (!obj.iconMarker) return;
+
+    // Faustregel: ab Zoomstufe 17 sind Kreise > Bildschirm
+    if (zoom >= 17) {
+      map.removeLayer(obj.iconMarker);
+    } else {
+      if (!map.hasLayer(obj.iconMarker)) {
+        obj.iconMarker.addTo(map);
+      }
+    }
+  });
+}
+
 </script>
 
 <style>
