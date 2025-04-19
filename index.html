@@ -181,6 +181,15 @@
   animation: shake 0.5s infinite;
 }
 
+    .treasure-icon {
+  font-size: 20px;
+  opacity: 0.6;
+  pointer-events: none;
+  text-align: center;
+  filter: drop-shadow(1px 1px 1px rgba(0,0,0,0.4));
+}
+
+
     
   </style>
 </head>
@@ -411,15 +420,39 @@ if (color !== '#bdbdbd') {
   if (spot && !treasureCircles[name]) {
     const offsetLat = spot.coords[0] + (Math.random() - 0.5) * 0.001;
     const offsetLng = spot.coords[1] + (Math.random() - 0.5) * 0.001;
-    const circle = L.circle([offsetLat, offsetLng], {
-      radius: 200,
-      color: "gold",
-      fillOpacity: 0,
-      weight: 4
-    });
-    circle.bindPopup(`🏙 ${spot.name}`);
-    circle.addTo(treasureLayer);
-    treasureCircles[name] = circle;
+   const circle = L.circle([offsetLat, offsetLng], {
+  radius: 200,
+  color: "gold",
+  fillOpacity: 0,
+  weight: 4
+});
+circle.bindPopup(`🏙 ${spot.name}`);
+circle.addTo(treasureLayer);
+
+// 💰 Symbolmarker leicht oberhalb des Schatzkreises
+const icon = L.divIcon({
+  className: 'treasure-icon',
+  html: '💰',
+  iconSize: [24, 24],
+  iconAnchor: [12, 30] // leicht über dem Kreis
+});
+const iconMarker = L.marker([offsetLat - 0.0008, offsetLng], { icon }).addTo(treasureLayer);
+
+    iconMarker.bindTooltip(spot.name, {
+  permanent: false,
+  direction: 'top',
+  offset: [0, -10],
+  opacity: 0.85
+});
+  // ⬇️ Tooltip bei Tap kurz anzeigen
+  iconMarker.on('click', () => {
+    iconMarker.openTooltip();
+    setTimeout(() => iconMarker.closeTooltip(), 3000);
+  });
+
+treasureCircles[name] = { circle, iconMarker };
+
+
   }
 }
     switch (color) {
@@ -468,8 +501,12 @@ function resetAllColors() {
       layer.defaultColor = '#bdbdbd';
       saveColor(layer.feature.properties.name, '#bdbdbd');
     });
-    treasureLayer.clearLayers();
+  treasureLayer.clearLayers();
+Object.values(treasureCircles).forEach(obj => {
+  if (obj.iconMarker) map.removeLayer(obj.iconMarker);
+});
 Object.keys(treasureCircles).forEach(k => delete treasureCircles[k]);
+
     updateScoreboard();
   }
 } // ✅ HIER war bei dir die Klammer **vergessen**!
@@ -536,23 +573,27 @@ startCountdown(ziel);
       });
 
 function openLootboxPopup() {
-  document.getElementById("lootboxContent").innerHTML = `
-    <h3>Wähle eine Truhe:</h3>
-    <div style="display: flex; justify-content: space-around; margin-top: 10px;">
-      <div onclick="selectLootbox('bronze')" style="cursor:pointer;">
-        <div style="font-size: 12px; color: #888;">30 FR€</div>
-        <div style="font-size: 32px;">🟫</div>
-      </div>
-      <div onclick="selectLootbox('silber')" style="cursor:pointer;">
-        <div style="font-size: 12px; color: #888;">70 FR€</div>
-        <div style="font-size: 32px;">⬜</div>
-      </div>
-      <div onclick="selectLootbox('gold')" style="cursor:pointer;">
-        <div style="font-size: 12px; color: #888;">150 FR€</div>
-        <div style="font-size: 32px;">🟨</div>
-      </div>
+document.getElementById("lootboxContent").innerHTML = `
+  <h3>Wähle eine Truhe:</h3>
+  <div style="display: flex; justify-content: space-around; margin-top: 10px;">
+    <div onclick="selectLootbox('bronze')" class="lootbox-card bronze">
+      <div class="loot-price">30 FR€</div>
+      <div class="loot-icon">🧰</div>
+      <div class="loot-label">Bronze</div>
     </div>
-  `;
+    <div onclick="selectLootbox('silber')" class="lootbox-card silber">
+      <div class="loot-price">70 FR€</div>
+      <div class="loot-icon">📦</div>
+      <div class="loot-label">Silber</div>
+    </div>
+    <div onclick="selectLootbox('gold')" class="lootbox-card gold">
+      <div class="loot-price">150 FR€</div>
+      <div class="loot-icon">💰</div>
+      <div class="loot-label">Gold</div>
+    </div>
+  </div>
+`;
+
   document.getElementById("lootboxPopup").style.display = "block";
 }
 
@@ -975,6 +1016,51 @@ function generateSparkles() {
   from { opacity: 0.2; transform: scale(0.8); }
   to { opacity: 1; transform: scale(1.2); }
 }
+
+  .lootbox-card {
+  width: 150px;
+  height: 150px;
+  background: white;
+  border: 4px solid gold;
+  border-radius: 20px;
+  text-align: center;
+  padding: 10px;
+  cursor: pointer;
+  box-shadow: 0 0 8px rgba(0,0,0,0.3);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.lootbox-card:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 12px rgba(255, 215, 0, 0.7);
+}
+.loot-icon {
+  font-size: 60px;
+  margin-bottom: 8px;
+}
+.loot-price {
+  font-size: 14px;
+  color: #888;
+  margin-bottom: 5px;
+}
+.loot-label {
+  font-weight: bold;
+  font-size: 16px;
+}
+
+/* Farbliche Ränder nach Typ */
+.lootbox-card.bronze {
+  border-color: #cd7f32;
+}
+.lootbox-card.silber {
+  border-color: #aaa;
+}
+.lootbox-card.gold {
+  border-color: #ffd700;
+}
+
 </style>
 
 
