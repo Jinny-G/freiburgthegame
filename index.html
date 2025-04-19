@@ -230,7 +230,7 @@ const treasureSpots = [
   { name: "Altstadt (Freiburger Münster)", coords: [47.995548248291016, 7.8531999588012695] },
   { name: "Betzenhausen (Japanischer Garten)", coords: [48.01245880126953, 7.813791275024414] },
   { name: "Stühlinger (Blaue Brücke)", coords: [47.99646947182226, 7.838819150739069] },
-  { name: "Haslach (Waldspielplatz)", coords: [47.988796941918416, 7.811774721465512] },
+  { name: "Haslach (Waldspielplatz)", coords: [47.988795941918416, 7.811776721465512] },
   { name: "Weingarten (Gaskugel)", coords: [48.00702280887342, 7.804487814528058] },
   { name: "Landwasser (Seepark Tower)", coords: [48.02811542612249, 7.80696873379676] },
   { name: "Mooswald (Hochhaus Paduaweg)", coords: [48.013505996719296, 7.823352681209208] },
@@ -261,7 +261,7 @@ const treasureLayer = L.layerGroup().addTo(map);
 
 // Kleine Zufallsverschiebung (damit nicht zentriert)
 function randomOffset() {
-  return (Math.random() - 0.5) * 0.003; // ca. ±10 m
+  return (Math.random() - 0.5) * 0.0025; // ca. ±10 m
 }
 
 // 💫 Darstellung der Kreise
@@ -270,7 +270,7 @@ treasureSpots.forEach(t => {
   const offsetLng = t.coords[1] + randomOffset();
 
   const circle = L.circle([offsetLat, offsetLng], {
-    radius: 200,            // 100 m Durchmesser
+    radius: 150,            // 100 m Durchmesser
     color: "gold",
     fillOpacity: 0,        // kein Füllbereich
     weight: 4              // dicke Ränder
