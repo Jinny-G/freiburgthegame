@@ -647,33 +647,46 @@ setTimeout(() => {
     const list = effects[rarity];
     const drawn = list[Math.floor(Math.random() * list.length)];
 
-    const borderColor = {
-      gewöhnlich: "gray",
-      selten: "blue",
-      episch: "purple",
-      legendär: "gold",
-      mystisch: "turquoise"
-    }[rarity];
 
-    const result = `
-      <div style="
-        border: 4px solid ${borderColor};
-        border-radius: 12px;
-        padding: 10px;
-        position: relative;
-        background: white;
-        margin-top: 10px;
-        font-family: sans-serif;
-        box-shadow: 0 0 10px ${borderColor};
-      ">
-        <div style="font-size: 12px; font-weight: bold; color: ${borderColor};">${drawn.type} – ${rarity.toUpperCase()}</div>
-        <div style="font-size: 18px; font-weight: bold;">${drawn.name}</div>
-        <div style="font-size: 14px; margin-top: 5px;">${drawn.desc}</div>
-        <div class="sparkle-container"></div>
-      </div>
-    `;
-    document.getElementById("result").innerHTML = result;
-    generateSparkles();
+const borderColor = {
+  gewöhnlich: "green",
+  selten: "blue",
+  episch: "purple",
+  legendär: "gold",
+  mystisch: "turquoise"
+}[rarity];
+
+const bgColor = {
+  gewöhnlich: "rgba(46, 204, 113, 0.15)",     // sanftes Grün
+  selten: "rgba(0, 119, 255, 0.15)",          // sanftes Blau
+  episch: "rgba(128, 0, 128, 0.15)",          // Violett
+  legendär: "rgba(255, 215, 0, 0.15)",        // Goldgelb
+  mystisch: "rgba(64, 224, 208, 0.15)"        // Türkis
+}[rarity];
+
+const result = `
+  <div style="
+    border: 4px solid ${borderColor};
+    border-radius: 12px;
+    padding: 10px;
+    position: relative;
+    background: ${bgColor};
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    margin-top: 10px;
+    font-family: sans-serif;
+    box-shadow: 0 0 10px ${borderColor};
+    transition: background 0.5s ease;
+  ">
+    <div style="font-size: 12px; font-weight: bold; color: ${borderColor};">${drawn.type} – ${rarity.toUpperCase()}</div>
+    <div style="font-size: 18px; font-weight: bold;">${drawn.name}</div>
+    <div style="font-size: 14px; margin-top: 5px;">${drawn.desc}</div>
+    <div class="sparkle-container"></div>
+  </div>
+`;
+document.getElementById("result").innerHTML = result;
+generateSparkles();
+
   }, 700); // kurze Pause nach Deckelanimation
 }, 5000); // nach dem Zittern
 
@@ -704,6 +717,10 @@ function generateSparkles() {
     dot.style.top = `${Math.random() * 100}%`;
     container.appendChild(dot);
   }
+  setTimeout(() => {
+  container.innerHTML = "";
+}, 10000);
+
 }
 </script>
 
