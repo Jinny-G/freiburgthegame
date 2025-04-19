@@ -300,7 +300,10 @@
     const app = firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
 
-    const map = L.map('map').setView([47.998, 7.85], 12);
+    const map = L.map('map', {
+  minZoom: 11,
+  maxZoom: 18
+}).setView([47.988, 7.85], 12);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '&copy; OpenStreetMap contributors'
     }).addTo(map);
@@ -1020,7 +1023,7 @@ function generateSparkles() {
     if (!obj.iconMarker) return;
 
     // Faustregel: ab Zoomstufe 17 sind Kreise > Bildschirm
-    if (zoom >= 14) {
+    if (zoom >= 13) {
       map.removeLayer(obj.iconMarker);
     } else {
       if (!map.hasLayer(obj.iconMarker)) {
