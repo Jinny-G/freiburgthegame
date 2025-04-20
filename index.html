@@ -326,12 +326,12 @@
       for (const name of allNames) {
         await db.collection(gameCode).doc(name).set({ farbe: "#bdbdbd" });
       }
-      
+       location.reload();
     }
   }
 
   await askForGameCode();
-   location.reload();
+  
 
    document.getElementById("currentCodeDisplay").innerHTML =
   `Spielcode: <strong>${gameCode}</strong>`;
