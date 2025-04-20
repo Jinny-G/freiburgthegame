@@ -2,37 +2,6 @@
 <html>
 <head>
 
- <script type="module">
-  let gameCode = localStorage.getItem("gameCode");
-  let gamePassword = localStorage.getItem("gamePassword");
-
-  async function askForGameCode() {
-    if (!gamePassword) {
-      const pw = prompt("🔐 Bitte Admin-Passwort eingeben, um einen Spielcode zu erstellen:");
-      if (pw !== "i<3freiburg") {
-        alert("🚫 Falsches Passwort. Zugriff verweigert.");
-        return;
-      } else {
-        localStorage.setItem("gamePassword", pw);
-        gamePassword = pw;
-      }
-    }
-
-    if (!gameCode) {
-      gameCode = prompt("🔢 Gib deinen Spielcode ein oder erstelle einen neuen:");
-      if (!gameCode || gameCode.trim() === "") {
-        gameCode = "standard";
-      }
-      gameCode = gameCode.trim();
-      localStorage.setItem("gameCode", gameCode);
-      alert(`✅ Spielcode "${gameCode}" gespeichert.`);
-    }
-  }
-
-  await askForGameCode();
-</script>
-
-
   <meta charset="utf-8">
   <title>Freiburg Karte mit Punkten & Firebase</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -317,7 +286,37 @@
 <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore-compat.js"></script>
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 
-  <script>
+ <script type="module">
+  let gameCode = localStorage.getItem("gameCode");
+  let gamePassword = localStorage.getItem("gamePassword");
+
+  async function askForGameCode() {
+    if (!gamePassword) {
+      const pw = prompt("🔐 Bitte Admin-Passwort eingeben, um einen Spielcode zu erstellen:");
+      if (pw !== "i<3freiburg") {
+        alert("🚫 Falsches Passwort. Zugriff verweigert.");
+        return;
+      } else {
+        localStorage.setItem("gamePassword", pw);
+        gamePassword = pw;
+      }
+    }
+
+    if (!gameCode) {
+      gameCode = prompt("🔢 Gib deinen Spielcode ein oder erstelle einen neuen:");
+      if (!gameCode || gameCode.trim() === "") {
+        gameCode = "standard";
+      }
+      gameCode = gameCode.trim();
+      localStorage.setItem("gameCode", gameCode);
+      alert(`✅ Spielcode "${gameCode}" gespeichert.`);
+    }
+  }
+
+  await askForGameCode();
+
+  // ⬇️ Ab hier dein ganzer restlicher Code – Leaflet, Firebase, updateScoreboard(), alles!
+
     // ⬇️ DEIN Firebase-Konfigurationsblock hier einfügen:
     const firebaseConfig = {
   apiKey: "AIzaSyCRcsMUKzIG0m1ItnMV2O1mCt4O9Br2_GY",
