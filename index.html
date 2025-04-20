@@ -292,7 +292,7 @@
 
   async function askForGameCode() {
     if (!gamePassword) {
-      const pw = prompt("🔐 Bitte Admin-Passwort eingeben, um einen Spielcode zu erstellen:");
+      const pw = prompt("🔐 Bitte Master-Passwort eingeben, um einen Spielcode zu erstellen:");
       if (pw !== "i<3freiburg") {
         alert("🚫 Falsches Passwort. Zugriff verweigert.");
         return;
@@ -310,6 +310,20 @@
       gameCode = gameCode.trim();
       localStorage.setItem("gameCode", gameCode);
       alert(`✅ Spielcode "${gameCode}" gespeichert.`);
+
+      // Neue Spielrunde: Initialisiere alle Gebiete mit Grau
+      const allNames = [
+        "Altstadt", "Betzenhausen", "Stühlinger", "Haslach", "Weingarten",
+        "Landwasser", "Mooswald", "Neuburg", "Herdern", "Zähringen",
+        "Waldsee", "Ebnet", "Littenweiler", "Oberau", "Wiehre",
+        "Vauban", "Rieselfeld", "Hochdorf", "Mundenhof", "Tiengen",
+        "Munzingen", "St. Georges", "Günterstal", "Lehen", "Kappel",
+        "Waltershofen", "Opfingen", "Brühl"
+      ];
+      for (const name of allNames) {
+        await db.collection(gameCode).doc(name).set({ farbe: "#bdbdbd" });
+      }
+
     }
   }
 
@@ -392,7 +406,7 @@ const treasureCircles = {}; // Name → Leaflet-Circle
 document.getElementById("adminToggle").addEventListener("click", function () {
   if (!editEnabled) {
     const pw = prompt("Bitte Admin-Passwort eingeben:");
-    if (pw === "i<3freiburg") {
+    if (pw === "freiburg123") {
       editEnabled = true;
       document.body.classList.add("adminVisible");
       document.getElementById("lockIcon").textContent = "🔓";
@@ -548,6 +562,15 @@ Object.keys(treasureCircles).forEach(k => delete treasureCircles[k]);
   }
 } // ✅ HIER war bei dir die Klammer **vergessen**!
 
+   function resetGameCode() {
+  if (!confirm("⚠️ Willst du wirklich ein neues Spiel starten?\nDer aktuelle Spielcode und das Admin-Passwort werden gelöscht.")) {
+    return;
+  }
+  localStorage.removeItem("gameCode");
+  localStorage.removeItem("gamePassword");
+  location.reload();
+}
+
 // Countdown starten
 const ziel = new Date();
 ziel.setHours(15, 0, 0, 0);
@@ -601,7 +624,7 @@ startCountdown(ziel);
           onEachFeature: function (feature, layer) {
             const id = feature.properties.name;
             const farbe = farben[id] || '#bdbdbd';
-            layer.setStyle(styleFeature(farbe));
+      
             layer.defaultColor = farbe;
             onEachFeature(feature, layer);
           }
@@ -1133,6 +1156,8 @@ function generateSparkles() {
   box-shadow: 0 0 5px rgba(0,0,0,0.3);
   z-index: 1000;">
   <button onclick="resetAllColors()">🔁 Karte zurücksetzen</button>
+  <button onclick="resetGameCode()" style="margin-top: 10px;">🆕 Neues Spiel starten</button>
+
 </div>
 
 <div id="lootboxPopup" style="
