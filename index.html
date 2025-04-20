@@ -277,6 +277,9 @@
       </tr>
     </tbody>
   </table>
+  <div id="currentCodeDisplay" style="margin-top: 6px; font-size: 0.85em; color: #444;">
+  Spielcode: <strong>–</strong>
+</div>
 </div>
 
   <div id="map"></div>
@@ -328,6 +331,10 @@
   }
 
   await askForGameCode();
+
+   document.getElementById("currentCodeDisplay").innerHTML =
+  `Spielcode: <strong>${gameCode}</strong>`;
+
 
   // ⬇️ Ab hier dein ganzer restlicher Code – Leaflet, Firebase, updateScoreboard(), alles!
 
