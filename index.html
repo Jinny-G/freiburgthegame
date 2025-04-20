@@ -130,20 +130,20 @@
   text-align: center;
 }
 
-  .chest {
-  width: 80px;
-  height: 60px;
+.chest {
+  width: 140px;
+  height: 105px;
   position: relative;
   margin: auto;
 }
 
 .lid {
   width: 100%;
-  height: 30px;
+  height: 52px;
   background: saddlebrown;
-  border: 3px solid #5a2d0c;
+  border: 4px solid #5a2d0c;
   border-bottom: none;
-  border-radius: 10px 10px 0 0;
+  border-radius: 14px 14px 0 0;
   position: absolute;
   top: 0;
   left: 0;
@@ -154,16 +154,17 @@
 
 .base {
   width: 100%;
-  height: 30px;
+  height: 53px;
   background: peru;
-  border: 3px solid #5a2d0c;
+  border: 4px solid #5a2d0c;
   border-top: none;
-  border-radius: 0 0 10px 10px;
+  border-radius: 0 0 14px 14px;
   position: absolute;
   bottom: 0;
   left: 0;
   z-index: 1;
 }
+
 
 .open .lid {
   transform: rotateX(120deg);
@@ -1045,6 +1046,28 @@ content.innerHTML = `
   </div>
   <div id="result" style="margin-top: 20px;"></div>
 `;
+
+  // Farben je nach Truhentyp setzen
+const lid = document.querySelector(".lid");
+const base = document.querySelector(".base");
+
+if (tier === "bronze") {
+  lid.style.background = "saddlebrown";
+  lid.style.borderColor = "#5a2d0c";
+  base.style.background = "peru";
+  base.style.borderColor = "#5a2d0c";
+} else if (tier === "silber") {
+  lid.style.background = "#bbb";
+  lid.style.borderColor = "#999";
+  base.style.background = "#ddd";
+  base.style.borderColor = "#999";
+} else if (tier === "gold") {
+  lid.style.background = "#ffd700";
+  lid.style.borderColor = "#daa520";
+  base.style.background = "#fff8dc";
+  base.style.borderColor = "#daa520";
+}
+
 
   // Nach 5 Sekunden: Effekt ziehen
 setTimeout(() => {
