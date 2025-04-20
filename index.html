@@ -169,6 +169,50 @@
   transform: rotateX(120deg);
 }
 
+    /* Größere Truhe */
+#boxWrapper {
+  transform: scale(1.75); /* +75% */
+}
+
+/* Bronze-Truhe */
+.chest.bronze .lid {
+  background: linear-gradient(to bottom, #a0522d, #5a2d0c);
+}
+.chest.bronze .base {
+  background: linear-gradient(to top, #cd7f32, #8b4513);
+}
+
+/* Silber-Truhe */
+.chest.silber .lid {
+  background: linear-gradient(to bottom, #dcdcdc, #a9a9a9);
+}
+.chest.silber .base {
+  background: linear-gradient(to top, #c0c0c0, #808080);
+}
+
+/* Gold-Truhe */
+.chest.gold .lid {
+  background: linear-gradient(to bottom, #ffd700, #b8860b);
+}
+.chest.gold .base {
+  background: linear-gradient(to top, #ffec8b, #daa520);
+}
+
+/* Leichter metallischer Glanz (für alle Truhen) */
+.chest::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(45deg, rgba(255,255,255,0.2), rgba(255,255,255,0));
+  border-radius: 10px;
+  pointer-events: none;
+  z-index: 5;
+}
+
+
 @keyframes shake {
   0% { transform: rotate(0deg); }
   20% { transform: rotate(1deg); }
@@ -979,17 +1023,28 @@ function selectLootbox(tier) {
   if (!confirmOpen) return;
 
   // Truhe zentrieren und animieren
-  const content = document.getElementById("lootboxContent");
-  content.innerHTML = `
+  const lidColors = {
+  bronze: "#8B5A2B",    // dunkelbraun
+  silber: "#aaa",       // silbergrau
+  gold: "#D4AF37"       // gold
+};
+
+const baseColors = {
+  bronze: "#CD853F",    // heller braunton
+  silber: "#ccc",       // helleres silber
+  gold: "#FFD700"       // gelber goldton
+};
+
+const content = document.getElementById("lootboxContent");
+content.innerHTML = `
   <div id="boxWrapper" class="shake">
-    <div class="chest">
+    <div class="chest ${tier}">
       <div class="lid"></div>
       <div class="base"></div>
     </div>
   </div>
   <div id="result" style="margin-top: 20px;"></div>
 `;
-
 
   // Nach 5 Sekunden: Effekt ziehen
 setTimeout(() => {
