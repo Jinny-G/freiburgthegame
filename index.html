@@ -1,6 +1,38 @@
 <!DOCTYPE html>
 <html>
 <head>
+
+ <script type="module">
+  let gameCode = localStorage.getItem("gameCode");
+  let gamePassword = localStorage.getItem("gamePassword");
+
+  async function askForGameCode() {
+    if (!gamePassword) {
+      const pw = prompt("🔐 Bitte Admin-Passwort eingeben, um einen Spielcode zu erstellen:");
+      if (pw !== "i<3freiburg") {
+        alert("🚫 Falsches Passwort. Zugriff verweigert.");
+        return;
+      } else {
+        localStorage.setItem("gamePassword", pw);
+        gamePassword = pw;
+      }
+    }
+
+    if (!gameCode) {
+      gameCode = prompt("🔢 Gib deinen Spielcode ein oder erstelle einen neuen:");
+      if (!gameCode || gameCode.trim() === "") {
+        gameCode = "standard";
+      }
+      gameCode = gameCode.trim();
+      localStorage.setItem("gameCode", gameCode);
+      alert(`✅ Spielcode "${gameCode}" gespeichert.`);
+    }
+  }
+
+  await askForGameCode();
+</script>
+
+
   <meta charset="utf-8">
   <title>Freiburg Karte mit Punkten & Firebase</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -399,11 +431,11 @@ document.getElementById("adminToggle").addEventListener("click", function () {
     });
 
     function saveColor(id, color) {
-      db.collection("farben").doc(id).set({ farbe: color });
+      db.collection(gameCode).doc(id).set({ farbe: color });
     }
 
     async function loadColors() {
-      const snapshot = await db.collection("farben").get();
+      const snapshot = await db.collection(gameCode).get();
       const farben = {};
       snapshot.forEach(doc => {
         farben[doc.id] = doc.data().farbe;
