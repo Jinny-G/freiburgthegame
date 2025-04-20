@@ -195,6 +195,16 @@
   </style>
 </head>
 <body>
+  <svg style="position:absolute; width:0; height:0;">
+  <defs>
+    <pattern id="tripleStripes" patternUnits="userSpaceOnUse" width="12" height="12" patternTransform="rotate(45)">
+      <rect x="0" y="0" width="4" height="12" fill="#fb8072" />
+      <rect x="4" y="0" width="4" height="12" fill="#ffffb3" />
+      <rect x="8" y="0" width="4" height="12" fill="#a6cee3" />
+    </pattern>
+  </defs>
+</svg>
+
   <div id="colorPicker" class="adminOnly">
     <label for="colorSelect">Farbe wählen:</label>
     <select id="colorSelect">
@@ -609,26 +619,29 @@ startCountdown(ziel);
       label.addTo(map);
     }
 
-    function styleFeature(color) {
-      return {
-        fillColor: color || '#bdbdbd',
-        weight: 2,
-        opacity: 1,
-        color: 'black',
-        fillOpacity: 0.6
-      };
-    }
+  function styleFeature(color, id) {
+  const fill = (id === "Altstadt" && color === "#bdbdbd") ? "url(#tripleStripes)" : color || '#bdbdbd';
+  return {
+    fillColor: fill,
+    weight: 2,
+    opacity: 1,
+    color: 'black',
+    fillOpacity: 0.6
+  };
+}
+
 
     fetch('https://raw.githubusercontent.com/codeforgermany/click_that_hood/main/public/data/freiburg.geojson')
       .then(res => res.json())
       .then(async data => {
         const farben = await loadColors();
         geojson = L.geoJSON(data, {
-          style: feature => {
-            const id = feature.properties.name;
-            const farbe = farben[id];
-            return styleFeature(farbe);
-          },
+        style: feature => {
+  const id = feature.properties.name;
+  const farbe = farben[id];
+  return styleFeature(farbe, id); // ← jetzt wird die id mit übergeben
+},
+
           onEachFeature: function (feature, layer) {
             const id = feature.properties.name;
             const farbe = farben[id] || '#bdbdbd';
