@@ -323,7 +323,7 @@
       for (const name of allNames) {
         await db.collection(gameCode).doc(name).set({ farbe: "#bdbdbd" });
       }
-
+      location.reload();
     }
   }
 
