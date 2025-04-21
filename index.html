@@ -1476,8 +1476,15 @@ scoreboard.addEventListener("click", (e) => {
 #scoreboard.collapsed table,
 #scoreboard.collapsed #currentCodeDisplay,
 #scoreboard.collapsed #toggleScoreboard {
-  display: none;
+  display: block;
+  font-size: 1em;
+  margin-top: 4px;
+  background: none;
+  border: none;
+  text-align: center;
+  cursor: pointer;
 }
+
 
 #scoreboard.collapsed::after {
   content: "📊";
