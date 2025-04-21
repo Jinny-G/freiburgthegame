@@ -1333,6 +1333,14 @@ function getTeamLetter(color) {
       return '?';
   }
 }
+const logToggle = document.getElementById("logToggle");
+const logDiv = document.getElementById("gameLog");
+
+logDiv.style.display = "none"; // Anfang: Log ist versteckt
+
+logToggle.addEventListener("click", () => {
+  logDiv.style.display = logDiv.style.display === "none" ? "block" : "none";
+});
 
 
 </script>
