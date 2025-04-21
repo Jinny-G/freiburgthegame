@@ -639,36 +639,53 @@ function startCountdown(targetTime) {
   update();
 }
 
-function resetAllColors() {
+async function resetAllColors() {
   if (!editEnabled) {
     alert("Nur im Admin-Modus verfügbar!");
     return;
   }
 
   if (confirm("Möchtest du wirklich alle Farben zurücksetzen?")) {
+    // Alle Farben in der Karte zurücksetzen
     geojson.eachLayer(layer => {
       layer.setStyle({ fillColor: '#bdbdbd' });
       layer.defaultColor = '#bdbdbd';
       saveColor(layer.feature.properties.name, '#bdbdbd');
     });
-  treasureLayer.clearLayers();
-Object.values(treasureCircles).forEach(obj => {
-  if (obj.iconMarker) map.removeLayer(obj.iconMarker);
-});
-Object.keys(treasureCircles).forEach(k => delete treasureCircles[k]);
+
+    // 🧹 Schatzanzeige und gespeicherte Schatzkreise löschen
+    treasureLayer.clearLayers();
+    Object.values(treasureCircles).forEach(obj => {
+      if (obj.iconMarker) map.removeLayer(obj.iconMarker);
+    });
+    Object.keys(treasureCircles).forEach(k => delete treasureCircles[k]);
 
     updateScoreboard();
+
+    // 🧹 Lokales Log löschen
     localStorage.removeItem("gameLog");
     document.getElementById("logList").innerHTML = "";
+
+    // 🧹 Firebase-Log löschen
+    const logSnapshot = await db.collection(gameCode + "_log").get();
+    const batch = db.batch();
+    logSnapshot.forEach(doc => batch.delete(doc.ref));
+    await batch.commit();
+
     alert("Alle Farben und Logs wurden zurückgesetzt.");
-
   }
-} // ✅ HIER war bei dir die Klammer **vergessen**!
+}
 
-   function resetGameCode() {
+  async function resetGameCode() {
   if (!confirm("⚠️ Willst du wirklich ein neues Spiel starten?\nDer aktuelle Spielcode und das Admin-Passwort werden gelöscht.")) {
     return;
   }
+       // 🧹 Log-Sammlung löschen
+  const logSnapshot = await db.collection(gameCode + "_log").get();
+  const batch = db.batch();
+  logSnapshot.forEach(doc => batch.delete(doc.ref));
+  await batch.commit();
+     
   localStorage.removeItem("gameCode");
   localStorage.removeItem("gamePassword");
   localStorage.removeItem("gameLog");
@@ -1258,19 +1275,15 @@ function addLogEntry(color, action, ort) {
   const teamSymbol = teamIcons[color] || '⚪';
   const teamLetter = getTeamLetter(color);
   const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  const text = `${time} ${teamSymbol} Team ${teamLetter} ${action} ${ort}`;
 
-  const li = document.createElement("li");
-  li.textContent = `${time} ${teamSymbol} Team ${teamLetter} ${action} ${ort}`;
-
-  const list = document.getElementById("logList");
-  list.insertBefore(li, list.firstChild);
-  while (list.children.length > 6) list.removeChild(list.lastChild);
-
-  // ⬇️ Log speichern
-  const logs = Array.from(list.children).map(li => li.textContent);
-  localStorage.setItem("gameLog", JSON.stringify(logs));
-
+  // NEU: Log in Firebase speichern
+  db.collection(gameCode + "_log").add({
+    text: text,
+    timestamp: Date.now()
+  });
 }
+
 
    function addLootLog(tier) {
   const icons = { bronze: "📦", silber: "🧰", gold: "💰" };
@@ -1283,6 +1296,12 @@ function addLogEntry(color, action, ort) {
   const list = document.getElementById("logList");
   list.insertBefore(li, list.firstChild);
   while (list.children.length > 6) list.removeChild(list.lastChild);
+     
+    db.collection(gameCode + "_log").add({
+    text: li.textContent,
+    timestamp: Date.now()
+  });
+
 }
 
 
@@ -1310,14 +1329,19 @@ logToggle.addEventListener("click", () => {
   logDiv.style.display = logDiv.style.display === "none" ? "block" : "none";
 });
 
-// ⬇️ Beim Start gespeichertes Log laden
-const savedLogs = JSON.parse(localStorage.getItem("gameLog") || "[]");
-const list = document.getElementById("logList");
-savedLogs.forEach(text => {
-  const li = document.createElement("li");
-  li.textContent = text;
-  list.appendChild(li);
-});
+db.collection(gameCode + "_log")
+  .orderBy("timestamp", "desc")
+  .limit(10)
+  .onSnapshot(snapshot => {
+    const list = document.getElementById("logList");
+    list.innerHTML = "";
+    snapshot.forEach(doc => {
+      const li = document.createElement("li");
+      li.textContent = doc.data().text;
+      list.appendChild(li);
+    });
+  });
+
 
 </script>
 
