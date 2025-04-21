@@ -1461,10 +1461,29 @@ scoreboard.addEventListener("click", () => {
   justify-content: center;
 }
 
- #scoreboard.collapsed table,
-#scoreboard.collapsed #currentCodeDisplay {
+#scoreboard.collapsed {
+  width: 50px;
+  height: 40px;
+  padding: 5px;
+  overflow: hidden;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#scoreboard.collapsed table,
+#scoreboard.collapsed #currentCodeDisplay,
+#scoreboard.collapsed #toggleScoreboard {
   display: none;
 }
+
+#scoreboard.collapsed::after {
+  content: "📊";
+  font-size: 1.4em;
+  text-align: center;
+}
+
 
 
 #scoreboard.collapsed::after {
