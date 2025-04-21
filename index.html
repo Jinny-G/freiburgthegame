@@ -658,6 +658,10 @@ Object.values(treasureCircles).forEach(obj => {
 Object.keys(treasureCircles).forEach(k => delete treasureCircles[k]);
 
     updateScoreboard();
+    localStorage.removeItem("gameLog");
+    document.getElementById("logList").innerHTML = "";
+    alert("Alle Farben und Logs wurden zurückgesetzt.");
+
   }
 } // ✅ HIER war bei dir die Klammer **vergessen**!
 
