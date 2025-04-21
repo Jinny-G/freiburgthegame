@@ -276,6 +276,23 @@
   ⏳ <span id="timer">--:--</span>
 </div>
 
+  <div id="gameLog" style="
+  position: fixed;
+  bottom: 80px;
+  left: 10px;
+  background: white;
+  padding: 10px;
+  font-family: sans-serif;
+  font-size: 0.85em;
+  border-radius: 5px;
+  box-shadow: 0 0 5px rgba(0,0,0,0.3);
+  z-index: 1000;
+  max-width: 280px;
+">
+  <div><strong>Letzte Ereignisse</strong></div>
+  <ul id="logList" style="list-style: none; margin: 0; padding: 0;"></ul>
+</div>
+  
 <div id="adminToggle" style="
   position: fixed;
   bottom: 20px;
@@ -515,9 +532,41 @@ document.getElementById("adminToggle").addEventListener("click", function () {
       }
     });
 
-    function saveColor(id, color) {
-      db.collection(gameCode).doc(id).set({ farbe: color });
-    }
+async function saveColor(id, newColor) {
+  const docRef = db.collection(gameCode).doc(id);
+  const oldDoc = await docRef.get();
+  const oldColor = oldDoc.exists ? oldDoc.data().farbe : "#bdbdbd";
+
+  await docRef.set({ farbe: newColor });
+
+  const teamColors = {
+    '#e41a1c': 'A', '#fb8072': 'A',
+    '#377eb8': 'B', '#a6cee3': 'B',
+    '#ffdf00': 'C', '#ffffb3': 'C'
+  };
+
+  const isGray = oldColor === '#bdbdbd';
+  const isLight = ['#fb8072', '#a6cee3', '#ffffb3'].includes(oldColor);
+  const isDark = ['#e41a1c', '#377eb8', '#ffdf00'].includes(newColor);
+
+  const oldTeam = teamColors[oldColor];
+  const newTeam = teamColors[newColor];
+
+  let action = "";
+
+  if (isGray && newTeam) {
+    action = "erobert";
+  } else if (isLight && isDark && oldTeam === newTeam) {
+    action = "sichert";
+  } else if (isLight && isDark && oldTeam !== newTeam) {
+    action = "befreit";
+  }
+
+  if (action) {
+    addLogEntry(newColor, action, id);
+  }
+}
+
 
     async function loadColors() {
       const snapshot = await db.collection(gameCode).get();
@@ -1218,6 +1267,46 @@ window.closeLootboxPopup = closeLootboxPopup;
   }
 }
 
+function addLogEntry(color, action, ort) {
+  const teamIcons = {
+    '#e41a1c': '🔴', // Team A – Dunkelrot
+    '#fb8072': '🟥', // Team A – Hellrot
+    '#377eb8': '🔵', // Team B – Dunkelblau
+    '#a6cee3': '🟦', // Team B – Hellblau
+    '#ffdf00': '🟡', // Team C – Dunkelgelb
+    '#ffffb3': '🟨'  // Team C – Hellgelb
+  };
+
+  const teamSymbol = teamIcons[color] || '⚪';
+  const now = new Date();
+  const time = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+  const li = document.createElement("li");
+  li.textContent = `${time} ${teamSymbol} Team ${getTeamLetter(color)} ${action} ${ort}`;
+  const list = document.getElementById("logList");
+  list.insertBefore(li, list.firstChild);
+
+  // Nur die 3 letzten Einträge behalten
+  while (list.children.length > 3) {
+    list.removeChild(list.lastChild);
+  }
+}
+
+function getTeamLetter(color) {
+  switch (color) {
+    case '#e41a1c':
+    case '#fb8072':
+      return 'A';
+    case '#377eb8':
+    case '#a6cee3':
+      return 'B';
+    case '#ffdf00':
+    case '#ffffb3':
+      return 'C';
+    default:
+      return '?';
+  }
+}
 
 
 </script>
