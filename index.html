@@ -1356,8 +1356,8 @@ toggleBtn.addEventListener("click", () => {
 });
 
 // Optional: Klick auf das Symbol klappt auch wieder aus
-scoreboard.addEventListener("click", () => {
-  if (scoreboard.classList.contains("collapsed")) {
+scoreboard.addEventListener("click", (e) => {
+  if (scoreboard.classList.contains("collapsed") && e.target === scoreboard) {
     scoreboard.classList.remove("collapsed");
     toggleBtn.textContent = "🔽 Einklappen";
   }
@@ -1462,14 +1462,11 @@ scoreboard.addEventListener("click", () => {
 }
 
 #scoreboard.collapsed {
-  width: 50px;
+  width: 60px;
   height: 40px;
   padding: 5px;
   overflow: hidden;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  position: relative;
 }
 
 #scoreboard.collapsed table,
@@ -1480,9 +1477,13 @@ scoreboard.addEventListener("click", () => {
 
 #scoreboard.collapsed::after {
   content: "📊";
+  position: absolute;
+  top: 8px;
+  left: 16px;
   font-size: 1.4em;
-  text-align: center;
+  cursor: pointer;
 }
+
 
 
 
