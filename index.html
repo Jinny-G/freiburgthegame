@@ -1343,25 +1343,32 @@ db.collection(gameCode + "_log")
     });
   });
 
-   const scoreboard = document.getElementById("scoreboard");
+
+const scoreboard = document.getElementById("scoreboard");
 const toggleBtn = document.getElementById("toggleScoreboard");
+const scoreboardToggleIcon = document.getElementById("scoreboardToggleIcon");
 
 toggleBtn.addEventListener("click", () => {
-  scoreboard.classList.toggle("collapsed");
-  if (scoreboard.classList.contains("collapsed")) {
-    toggleBtn.textContent = "📊 Ausklappen";
-  } else {
-    toggleBtn.textContent = "🔽 Einklappen";
-  }
+  scoreboard.style.display = "none"; // Scoreboard ausblenden
+  scoreboardToggleIcon.style.display = "flex"; // 📊 anzeigen
 });
 
-// Optional: Klick auf das Symbol klappt auch wieder aus
-scoreboard.addEventListener("click", (e) => {
-  if (scoreboard.classList.contains("collapsed") && e.target.closest("#scoreboard")) {
-    scoreboard.classList.remove("collapsed");
-    toggleBtn.textContent = "🔽 Einklappen";
-  }
+scoreboardToggleIcon.addEventListener("click", () => {
+  scoreboard.style.display = "block"; // Scoreboard wieder einblenden
+  scoreboardToggleIcon.style.display = "none"; // 📊 ausblenden
 });
+
+
+// Optional: Klick auf das Symbol klappt auch wieder aus
+toggleBtn.addEventListener("click", () => {
+  scoreboard.style.display = "none"; // Scoreboard ausblenden
+  document.getElementById("scoreboardToggleIcon").style.display = "flex"; // 📊 einblenden
+});
+document.getElementById("scoreboardToggleIcon").addEventListener("click", () => {
+  scoreboard.style.display = "block"; // Scoreboard wieder anzeigen
+  document.getElementById("scoreboardToggleIcon").style.display = "none"; // 📊 wieder ausblenden
+});
+
 
 
 
@@ -1484,22 +1491,7 @@ scoreboard.addEventListener("click", (e) => {
   text-align: center;
   cursor: pointer;
 }
-
-
-#scoreboard.collapsed::after {
-  content: "📊";
-  position: absolute;
-  top: 0;
-  left: 0;
-  font-size: 1.4em;
-  width: 100%;
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-}
-
+  
   #toggleScoreboard {
   position: absolute;
   bottom: 4px;
@@ -1508,8 +1500,6 @@ scoreboard.addEventListener("click", (e) => {
   text-align: center;
   font-size: 0.8em;
 }
-
-
   
 </style>
 
@@ -1548,6 +1538,26 @@ scoreboard.addEventListener("click", (e) => {
 ">
   <div id="lootboxContent"></div>
   <button onclick="closeLootboxPopup()">✖️ Schließen</button>
+</div>
+  
+<div id="scoreboardToggleIcon" style="
+  display: none;
+  position: fixed;
+  top: 10px;
+  right: 10px;
+  background: white;
+  width: 40px;
+  height: 40px;
+  font-size: 22px;
+  border-radius: 50%;
+  box-shadow: 0 0 5px rgba(0,0,0,0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 1001;
+">
+  📊
 </div>
 
   
