@@ -278,7 +278,7 @@
 
   <div id="gameLog" style="
   position: fixed;
-  bottom: 120px;
+  bottom: 180px;
   left: 10px;
   background: white;
   padding: 10px;
@@ -333,7 +333,7 @@
 
   <div id="logToggle" style="
   position: fixed;
-  bottom: 140px;
+  bottom: 125px;
   left: 10px;
   z-index: 1001;
   cursor: pointer;
@@ -709,6 +709,7 @@ Object.keys(treasureCircles).forEach(k => delete treasureCircles[k]);
   }
   localStorage.removeItem("gameCode");
   localStorage.removeItem("gamePassword");
+  localStorage.removeItem("gameLog");
   location.reload();
 }
 
@@ -1302,6 +1303,11 @@ function addLogEntry(color, action, ort) {
   const list = document.getElementById("logList");
   list.insertBefore(li, list.firstChild);
   while (list.children.length > 6) list.removeChild(list.lastChild);
+
+  // ⬇️ Log speichern
+  const logs = Array.from(list.children).map(li => li.textContent);
+  localStorage.setItem("gameLog", JSON.stringify(logs));
+
 }
 
    function addLootLog(tier) {
@@ -1342,6 +1348,14 @@ logToggle.addEventListener("click", () => {
   logDiv.style.display = logDiv.style.display === "none" ? "block" : "none";
 });
 
+// ⬇️ Beim Start gespeichertes Log laden
+const savedLogs = JSON.parse(localStorage.getItem("gameLog") || "[]");
+const list = document.getElementById("logList");
+savedLogs.forEach(text => {
+  const li = document.createElement("li");
+  li.textContent = text;
+  list.appendChild(li);
+});
 
 </script>
 
