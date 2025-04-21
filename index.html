@@ -278,7 +278,7 @@
 
   <div id="gameLog" style="
   position: fixed;
-  bottom: 80px;
+  bottom: 120px;
   left: 10px;
   background: white;
   padding: 10px;
@@ -330,6 +330,26 @@
 ">
   <span id="lootboxIcon">🎁</span>
 </div>
+
+  <div id="logToggle" style="
+  position: fixed;
+  bottom: 140px;
+  left: 10px;
+  z-index: 1001;
+  cursor: pointer;
+  font-size: 24px;
+  background: white;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  box-shadow: 0 0 5px rgba(0,0,0,0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+">
+  <span id="logIcon">📜</span>
+</div>
+
   
 <div id="scoreboard">
   <table>
@@ -1190,8 +1210,7 @@ const result = `
 
 document.getElementById("result").innerHTML = result;
 generateSparkles();
-
-
+    addLootLog(tier);
   }, 700); // kurze Pause nach Deckelanimation
 }, 5000); // nach dem Zittern
 
@@ -1269,28 +1288,35 @@ window.closeLootboxPopup = closeLootboxPopup;
 
 function addLogEntry(color, action, ort) {
   const teamIcons = {
-    '#e41a1c': '🔴', // Team A – Dunkelrot
-    '#fb8072': '🟥', // Team A – Hellrot
-    '#377eb8': '🔵', // Team B – Dunkelblau
-    '#a6cee3': '🟦', // Team B – Hellblau
-    '#ffdf00': '🟡', // Team C – Dunkelgelb
-    '#ffffb3': '🟨'  // Team C – Hellgelb
+    '#e41a1c': '🔴', '#fb8072': '🟥',
+    '#377eb8': '🔵', '#a6cee3': '🟦',
+    '#ffdf00': '🟡', '#ffffb3': '🟨'
   };
-
   const teamSymbol = teamIcons[color] || '⚪';
-  const now = new Date();
-  const time = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  const teamLetter = getTeamLetter(color);
+  const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
   const li = document.createElement("li");
-  li.textContent = `${time} ${teamSymbol} Team ${getTeamLetter(color)} ${action} ${ort}`;
+  li.textContent = `${time} ${teamSymbol} Team ${teamLetter} ${action} ${ort}`;
+
   const list = document.getElementById("logList");
   list.insertBefore(li, list.firstChild);
-
-  // Nur die 3 letzten Einträge behalten
-  while (list.children.length > 3) {
-    list.removeChild(list.lastChild);
-  }
+  while (list.children.length > 6) list.removeChild(list.lastChild);
 }
+
+   function addLootLog(tier) {
+  const icons = { bronze: "📦", silber: "🧰", gold: "💰" };
+  const names = { bronze: "Bronze", silber: "Silber", gold: "Gold" };
+  const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+  const li = document.createElement("li");
+  li.textContent = `${time} ${icons[tier]} Eine ${names[tier]}-Truhe wurde geöffnet.`;
+
+  const list = document.getElementById("logList");
+  list.insertBefore(li, list.firstChild);
+  while (list.children.length > 6) list.removeChild(list.lastChild);
+}
+
 
 function getTeamLetter(color) {
   switch (color) {
