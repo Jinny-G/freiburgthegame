@@ -339,6 +339,7 @@
   <div id="currentCodeDisplay" style="margin-top: 6px; font-size: 0.85em; color: #444;">
   Spielcode: <strong>–</strong>
 </div>
+  <button id="toggleScoreboard" style="margin-top: 6px; font-size: 0.8em;">🔽 Einklappen</button>
 </div>
 
   <div id="map"></div>
@@ -1342,6 +1343,26 @@ db.collection(gameCode + "_log")
     });
   });
 
+   const scoreboard = document.getElementById("scoreboard");
+const toggleBtn = document.getElementById("toggleScoreboard");
+
+toggleBtn.addEventListener("click", () => {
+  scoreboard.classList.toggle("collapsed");
+  if (scoreboard.classList.contains("collapsed")) {
+    toggleBtn.textContent = "📊 Ausklappen";
+  } else {
+    toggleBtn.textContent = "🔽 Einklappen";
+  }
+});
+
+// Optional: Klick auf das Symbol klappt auch wieder aus
+scoreboard.addEventListener("click", () => {
+  if (scoreboard.classList.contains("collapsed")) {
+    scoreboard.classList.remove("collapsed");
+    toggleBtn.textContent = "🔽 Einklappen";
+  }
+});
+
 
 </script>
 
@@ -1438,6 +1459,22 @@ db.collection(gameCode + "_log")
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+  #scoreboard.collapsed table,
+#scoreboard.collapsed #currentCodeDisplay,
+#scoreboard.collapsed #toggleScoreboard {
+  display: none;
+}
+
+#scoreboard.collapsed::after {
+  content: "📊";
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 1.4em;
+  height: 40px;
+  cursor: pointer;
 }
 
 
