@@ -302,59 +302,11 @@
   <ul id="logList" style="list-style: none; margin: 0; padding: 0;"></ul>
 </div>
   
-  <div id="logToggle" style="
-    position: fixed;
-    cursor: pointer;
-    font-size: 24px;
-    bottom: 10px;
-    right: 110px;
-    background: white;
-    border-radius: 50%;
-    width: 40px;
-    height: 40px;
-    box-shadow: 0 0 5px rgba(0,0,0,0.3);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  ">
-    <span id="logIcon">📜</span>
-  </div>
-
-  <div id="lootboxToggle" style="
-    position: fixed;
-    cursor: pointer;
-    font-size: 24px;
-    bottom: 10px;
-    right: 60px;
-    background: white;
-    border-radius: 50%;
-    width: 40px;
-    height: 40px;
-    box-shadow: 0 0 5px rgba(0,0,0,0.3);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  ">
-    <span id="lootboxIcon">🎁</span>
-  </div>
-
-  <div id="adminToggle" style="
-    position: fixed;
-    cursor: pointer;
-    font-size: 24px;
-    bottom: 10px;
-    right: 10px;
-    background: white;
-    border-radius: 50%;
-    width: 40px;
-    height: 40px;
-    box-shadow: 0 0 5px rgba(0,0,0,0.3);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  ">
-    <span id="lockIcon">🔒</span>
-  </div>
+<div id="floatingIcons">
+  <div id="logToggle"><span id="logIcon">📜</span></div>
+  <div id="lootboxToggle"><span id="lootboxIcon">🎁</span></div>
+  <div id="adminToggle"><span id="lockIcon">🔒</span></div>
+</div>
 
   
 <div id="scoreboard">
@@ -1437,6 +1389,29 @@ savedLogs.forEach(text => {
     opacity: 0;
   }
 }
+
+  #floatingIcons {
+  position: fixed;
+  bottom: 10px;
+  right: 10px;
+  display: flex;
+  gap: 10px;
+  z-index: 1101;
+}
+
+#floatingIcons > div {
+  cursor: pointer;
+  font-size: 24px;
+  background: white;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  box-shadow: 0 0 5px rgba(0,0,0,0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 
   
 </style>
