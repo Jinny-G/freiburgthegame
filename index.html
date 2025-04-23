@@ -404,6 +404,8 @@ await db.collection(gameCode).doc("_meta").set({ endTime: "15:00" });
   }
 
   await askForGameCode();
+   document.getElementById("currentCodeDisplay").innerHTML = `Spielcode: <strong>${gameCode}</strong>`;
+
 
 
   
