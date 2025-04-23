@@ -1405,10 +1405,6 @@ const scoreboard = document.getElementById("scoreboard");
 const toggleBtn = document.getElementById("toggleScoreboard");
 const scoreboardToggleIcon = document.getElementById("scoreboardToggleIcon");
 
-toggleBtn.addEventListener("click", () => {
-  scoreboard.style.display = "none"; // Scoreboard ausblenden
-  scoreboardToggleIcon.style.display = "flex"; // 📊 anzeigen
-});
 
 scoreboardToggleIcon.addEventListener("click", () => {
   scoreboard.style.display = "block"; // Scoreboard wieder einblenden
