@@ -742,6 +742,7 @@ async function resetAllColors() {
   }, { merge: true });
 
   startCountdown(target);
+  setTimeout(() => location.reload(), 500); // optionaler Fallback
 }
 
 
