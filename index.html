@@ -393,10 +393,6 @@
   await askForGameCode();
   
 
-   document.getElementById("currentCodeDisplay").innerHTML =
-  `Spielcode: <strong>${gameCode}</strong>`;
-
-
   // ⬇️ Ab hier dein ganzer restlicher Code – Leaflet, Firebase, updateScoreboard(), alles!
 
     // ⬇️ DEIN Firebase-Konfigurationsblock hier einfügen:
@@ -1369,6 +1365,13 @@ document.getElementById("scoreboardToggleIcon").addEventListener("click", () => 
   document.getElementById("scoreboardToggleIcon").style.display = "none"; // 📊 wieder ausblenden
 });
 
+// Zeige den Spielcode unter dem Scoreboard an, wenn die Seite fertig geladen ist
+document.addEventListener("DOMContentLoaded", () => {
+  const display = document.getElementById("currentCodeDisplay");
+  if (display) {
+    display.innerHTML = `Spielcode: <strong>${gameCode}</strong>`;
+  }
+});
 
 
 
