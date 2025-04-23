@@ -398,6 +398,8 @@
   }
 
   await askForGameCode();
+   await loadEndTimeFromFirebase();
+
   
 
   // ⬇️ Ab hier dein ganzer restlicher Code – Leaflet, Firebase, updateScoreboard(), alles!
@@ -696,10 +698,45 @@ async function resetAllColors() {
   location.reload();
 }
 
-// Countdown starten
-const ziel = new Date();
-ziel.setHours(15, 0, 0, 0);
-startCountdown(ziel);
+   async function loadEndTimeFromFirebase() {
+  try {
+    const metaDoc = await db.collection(gameCode).doc("_meta").get();
+    const storedTime = metaDoc.exists && metaDoc.data().endTime;
+    if (storedTime) {
+      const [h, m] = storedTime.split(":").map(Number);
+      const ziel = new Date();
+      ziel.setHours(h, m, 0, 0);
+      startCountdown(ziel);
+
+      // Admin-Feld vorausfüllen
+      const picker = document.getElementById("endTimePicker");
+      if (picker) picker.value = storedTime;
+    } else {
+      const ziel = new Date();
+      ziel.setHours(15, 0, 0, 0);
+      startCountdown(ziel);
+    }
+  } catch (err) {
+    console.error("Fehler beim Laden der Endzeit:", err);
+  }
+}
+
+
+
+   async function applyEndTime() {
+  const input = document.getElementById("endTimePicker").value;
+  const [hours, minutes] = input.split(":").map(Number);
+  const target = new Date();
+  target.setHours(hours, minutes, 0, 0);
+
+  // Save in Firebase unter "_meta"
+  await db.collection(gameCode).doc("_meta").set({
+    endTime: input
+  }, { merge: true });
+
+  startCountdown(target);
+}
+
 
 
 
@@ -1521,6 +1558,12 @@ document.getElementById("scoreboardToggleIcon").addEventListener("click", () => 
   z-index: 1000;">
   <button onclick="resetAllColors()">🔁 Karte zurücksetzen</button>
   <button onclick="resetGameCode()" style="margin-top: 10px;">🆕 Neues Spiel starten</button>
+  <div style="margin-top: 10px;">
+  <label for="endTimePicker">🕒 Spielzeit bis:</label>
+  <input type="time" id="endTimePicker" value="15:00" style="margin-left: 5px;">
+  <button onclick="applyEndTime()">✅ Übernehmen</button>
+</div>
+
 
 </div>
 
