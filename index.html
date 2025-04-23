@@ -374,6 +374,12 @@
       localStorage.setItem("gameCode", gameCode);
       alert(`✅ Spielcode "${gameCode}" gespeichert.`);
 
+        // ✨ NEU: Anzeige aktualisieren
+  const display = document.getElementById("currentCodeDisplay");
+  if (display) {
+    display.innerHTML = `Spielcode: <strong>${gameCode}</strong>`;
+  }
+
       // Neue Spielrunde: Initialisiere alle Gebiete mit Grau
       const allNames = [
         "Altstadt", "Betzenhausen", "Stühlinger", "Haslach", "Weingarten",
@@ -1365,13 +1371,6 @@ document.getElementById("scoreboardToggleIcon").addEventListener("click", () => 
   document.getElementById("scoreboardToggleIcon").style.display = "none"; // 📊 wieder ausblenden
 });
 
-// Zeige den Spielcode unter dem Scoreboard an, wenn die Seite fertig geladen ist
-document.addEventListener("DOMContentLoaded", () => {
-  const display = document.getElementById("currentCodeDisplay");
-  if (display) {
-    display.innerHTML = `Spielcode: <strong>${gameCode}</strong>`;
-  }
-});
 
 
 
