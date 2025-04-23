@@ -420,7 +420,10 @@ await db.collection(gameCode).doc("_meta").set({ endTime: "15:00" });
     // Firebase initialisieren
     const app = firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
-      await loadEndTimeFromFirebase();
+// Vermeide Doppelladen nach neuem Spiel
+if (gameCode && gamePassword) {
+  await loadEndTimeFromFirebase();
+}
 
     const map = L.map('map', {
   minZoom: 11,
