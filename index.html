@@ -393,12 +393,15 @@
       for (const name of allNames) {
         await db.collection(gameCode).doc(name).set({ farbe: "#bdbdbd" });
       }
+      // 🕒 Standard-Endzeit speichern
+await db.collection(gameCode).doc("_meta").set({ endTime: "15:00" });
+
        location.reload();
     }
   }
 
   await askForGameCode();
-   await loadEndTimeFromFirebase();
+
 
   
 
@@ -417,6 +420,7 @@
     // Firebase initialisieren
     const app = firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
+      await loadEndTimeFromFirebase();
 
     const map = L.map('map', {
   minZoom: 11,
@@ -1289,6 +1293,8 @@ window.resetAllColors = resetAllColors;
 window.selectLootbox = selectLootbox;
 window.openLootboxPopup = openLootboxPopup;
 window.closeLootboxPopup = closeLootboxPopup;
+window.applyEndTime = applyEndTime;
+
 
    function sparkleEffect() {
   const chest = document.querySelector(".chest");
