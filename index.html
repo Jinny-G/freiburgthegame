@@ -657,7 +657,7 @@ document.getElementById("funkerToggle").addEventListener("click", async function
   }
 
   alert(
-    `Funker-Modus aktiviert!\n\nTeam ${team} kann:\n- graue Gebiete erobern (Helfarbe)\n- eigene hellfarbige Gebiete sichern (Dunkelfarbe)\n\nWähle ein erlaubtes Gebiet (gelber Rand).`
+    `Funker-Modus aktiviert!\n\nTeam ${team} kann:\n- graue Gebiete erobern (helle Farbe)\n- eigene hellfarbige Gebiete sichern (dunke Farbe)\n\nWähle ein erlaubtes Gebiet (gelber Rand).`
   );
 
   function funkerClick(e) {
@@ -668,10 +668,10 @@ document.getElementById("funkerToggle").addEventListener("click", async function
     let aktion = "";
     let neueFarbe = "";
     if (c === "#bdbdbd") {
-      aktion = `Gebiet "${id}" für Team ${team} erobern (Helfarbe)?`;
+      aktion = `Gebiet "${id}" für Team ${team} erobern?`;
       neueFarbe = hell;
     } else if (c === hell) {
-      aktion = `Gebiet "${id}" für Team ${team} sichern (Dunkelfarbe)?`;
+      aktion = `Gebiet "${id}" für Team ${team} sichern?`;
       neueFarbe = dunkel;
     } else {
       return; // sollte nicht auftreten
@@ -686,7 +686,6 @@ document.getElementById("funkerToggle").addEventListener("click", async function
     saveColor(id, neueFarbe);
     updateScoreboard();
     updateTreasureVisibility();
-    addLogEntry(neueFarbe, c === "#bdbdbd" ? "erobert (Funker)" : "gesichert (Funker)", id);
     alert(`Gebiet "${id}" wurde erfolgreich aktualisiert!`);
 
     // Modus für alle beenden
