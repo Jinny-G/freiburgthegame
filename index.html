@@ -643,81 +643,91 @@ treasureCircles[name] = { circle, iconMarker };
 } 
 
 document.getElementById("funkerToggle").addEventListener("click", async function () {
-  // Passwort-Abfrage
   const pw = prompt("Funker-Passwort für Team Rot/Blau/Gelb eingeben:");
-  let team, hell, dunkel, pwOk;
+  let team, hell, dunkel;
   if (pw === "funkerAlpha") {
-    team = "A";
-    hell = "#fb8072";
-    dunkel = "#e41a1c";
-    pwOk = true;
+    team = "A"; hell = "#fb8072"; dunkel = "#e41a1c";
   } else if (pw === "funkerBravo") {
-    team = "B";
-    hell = "#a6cee3";
-    dunkel = "#377eb8";
-    pwOk = true;
+    team = "B"; hell = "#a6cee3"; dunkel = "#377eb8";
   } else if (pw === "funkerCharlie") {
-    team = "C";
-    hell = "#ffffb3";
-    dunkel = "#ffdf00";
-    pwOk = true;
+    team = "C"; hell = "#ffffb3"; dunkel = "#ffdf00";
   } else {
     alert("Falsches Passwort!");
     return;
   }
 
-  alert(`Funker-Modus aktiviert: Team ${team} kann graue Gebiete erobern oder eigene eroberte Gebiete sichern.\n\nKlicke einfach auf das gewünschte Gebiet! (Modus endet automatisch nach Klick!)`);
+  alert(
+    `Funker-Modus aktiviert!\n\nTeam ${team} kann:\n- graue Gebiete erobern (Helfarbe)\n- eigene hellfarbige Gebiete sichern (Dunkelfarbe)\n\nWähle ein erlaubtes Gebiet (gelber Rand).`
+  );
 
-  // Interaktiven Klickmodus aktivieren:
   function funkerClick(e) {
     let c = this.options.fillColor;
     let id = this.feature.properties.name;
-    // Graues Gebiet? → Erobern
+
+    // Nur erlaubte Felder (darf eh nur klicken auf erlaubten)
+    let aktion = "";
+    let neueFarbe = "";
     if (c === "#bdbdbd") {
-      this.setStyle({ fillColor: hell });
-      this.defaultColor = hell;
-      saveColor(id, hell);
-      updateScoreboard();
-      updateTreasureVisibility();
-      addLogEntry(hell, "erobert (Funker)", id);
-      alert(`Gebiet "${id}" für Team ${team} erobert (Helfarbe).`);
+      aktion = `Gebiet "${id}" für Team ${team} erobern (Helfarbe)?`;
+      neueFarbe = hell;
+    } else if (c === hell) {
+      aktion = `Gebiet "${id}" für Team ${team} sichern (Dunkelfarbe)?`;
+      neueFarbe = dunkel;
+    } else {
+      return; // sollte nicht auftreten
     }
-    // Eigene Helfarbe? → Sichern
-    else if (c === hell) {
-      this.setStyle({ fillColor: dunkel });
-      this.defaultColor = dunkel;
-      saveColor(id, dunkel);
-      updateScoreboard();
-      updateTreasureVisibility();
-      addLogEntry(dunkel, "gesichert (Funker)", id);
-      alert(`Gebiet "${id}" für Team ${team} gesichert (Dunkelfarbe).`);
-    }
-    // Sonst nichts!
-    else {
-      alert("Nur graue oder eigene hellfarbige Gebiete können vom Funker bearbeitet werden!");
-    }
+
+    // Bestätigungsdialog
+    if (!confirm(aktion)) return;
+
+    // Änderung ausführen
+    this.setStyle({ fillColor: neueFarbe });
+    this.defaultColor = neueFarbe;
+    saveColor(id, neueFarbe);
+    updateScoreboard();
+    updateTreasureVisibility();
+    addLogEntry(neueFarbe, c === "#bdbdbd" ? "erobert (Funker)" : "gesichert (Funker)", id);
+    alert(`Gebiet "${id}" wurde erfolgreich aktualisiert!`);
+
+    // Modus für alle beenden
+    cleanupFunkerModus();
   }
 
-  // Listener setzen auf alle Layer:
-  geojson.eachLayer(layer => {
-    layer.on('click', funkerClick);
-    layer._funkerActive = true;
-    // Optional: optisches Highlight für Funkermodus (dicker goldener Rand)
-    layer.setStyle({ weight: 4, color: "#eac100" });
-  });
-
-  // Nach 60 Sekunden alles zurücksetzen
-setTimeout(() => {
-  geojson.eachLayer(layer => {
-    if (layer._funkerActive) {
-      layer.off('click', funkerClick);
-      delete layer._funkerActive;
+  function cleanupFunkerModus() {
+    geojson.eachLayer(layer => {
+      if (layer._funkerActive) {
+        layer.off('click', funkerClick);
+        delete layer._funkerActive;
+      }
+      // Styling zurücksetzen
       layer.setStyle({ weight: 2, color: "black" });
+    });
+    alert("Funker-Modus beendet!");
+  }
+
+  // Funker-Highlight & Listener NUR auf erlaubte Layer
+  let wasSelectable = false;
+  geojson.eachLayer(layer => {
+    let c = layer.options.fillColor;
+    // Nur graue Felder oder eigene Helfarbe
+    if (c === "#bdbdbd" || c === hell) {
+      wasSelectable = true;
+      layer.on('click', funkerClick);
+      layer._funkerActive = true;
+      layer.setStyle({ weight: 5, color: "#eac100" }); // dicker goldener Rand
+    } else {
+      // Andere Gebiete normal anzeigen
+      layer.setStyle({ weight: 2, color: "black" });
+      layer._funkerActive = false;
     }
   });
-  alert("Funker-Modus beendet!");
-}, 250); // kurz warten, dann zurücksetzen
+
+  if (!wasSelectable) {
+    alert("Kein erlaubtes Gebiet verfügbar. Funker-Modus beendet!");
+    cleanupFunkerModus();
+  }
 });
+
    
 
 function startCountdown(targetTime) {
