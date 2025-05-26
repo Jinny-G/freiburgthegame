@@ -866,10 +866,18 @@ async function resetAllColors() {
       label.addTo(map);
     }
 
-  function styleFeature(color, id) {
-  const fill = (id === "Altstadt" && color === "#bdbdbd") ? "url(#tripleStripes)" : color || '#bdbdbd';
+function styleFeature(color, id) {
+  if (id === "Altstadt" && (!color || color === "#bdbdbd")) {
+    return {
+      fillColor: "url(#tripleStripes)",
+      weight: 2,
+      opacity: 1,
+      color: 'black',
+      fillOpacity: 0.6
+    };
+  }
   return {
-    fillColor: fill,
+    fillColor: color || '#bdbdbd',
     weight: 2,
     opacity: 1,
     color: 'black',
