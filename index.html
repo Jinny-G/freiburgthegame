@@ -306,6 +306,7 @@
   <div id="logToggle"><span id="logIcon">📜</span></div>
   <div id="lootboxToggle"><span id="lootboxIcon">🎁</span></div>
   <div id="adminToggle"><span id="lockIcon">🔒</span></div>
+  <div id="funkerToggle"><span id="funkerIcon">📡</span></div>
 </div>
 
   
@@ -639,7 +640,85 @@ treasureCircles[name] = { circle, iconMarker };
   document.getElementById("securedB").textContent = securedB;
   document.getElementById("pointsC").textContent = pointsC;
   document.getElementById("securedC").textContent = securedC;
-} // ✅ HIER war bei dir die schließende Klammer vergessen
+} 
+
+document.getElementById("funkerToggle").addEventListener("click", async function () {
+  // Passwort-Abfrage
+  const pw = prompt("Funker-Passwort für Team Rot/Blau/Gelb eingeben:");
+  let team, hell, dunkel, pwOk;
+  if (pw === "funkerA123") {
+    team = "A";
+    hell = "#fb8072";
+    dunkel = "#e41a1c";
+    pwOk = true;
+  } else if (pw === "funkerB123") {
+    team = "B";
+    hell = "#a6cee3";
+    dunkel = "#377eb8";
+    pwOk = true;
+  } else if (pw === "funkerC123") {
+    team = "C";
+    hell = "#ffffb3";
+    dunkel = "#ffdf00";
+    pwOk = true;
+  } else {
+    alert("Falsches Passwort!");
+    return;
+  }
+
+  alert(`Funker-Modus aktiviert: Team ${team} kann graue Gebiete erobern (Helfarbe) oder eigene hellfarbige Gebiete sichern (Dunkelfarbe).\n\nKlicke einfach auf das gewünschte Gebiet! (Modus endet nach 60 Sekunden)`);
+
+  // Interaktiven Klickmodus aktivieren:
+  function funkerClick(e) {
+    let c = this.options.fillColor;
+    let id = this.feature.properties.name;
+    // Graues Gebiet? → Erobern
+    if (c === "#bdbdbd") {
+      this.setStyle({ fillColor: hell });
+      this.defaultColor = hell;
+      saveColor(id, hell);
+      updateScoreboard();
+      updateTreasureVisibility();
+      addLogEntry(hell, "erobert (Funker)", id);
+      alert(`Gebiet "${id}" für Team ${team} erobert (Helfarbe).`);
+    }
+    // Eigene Helfarbe? → Sichern
+    else if (c === hell) {
+      this.setStyle({ fillColor: dunkel });
+      this.defaultColor = dunkel;
+      saveColor(id, dunkel);
+      updateScoreboard();
+      updateTreasureVisibility();
+      addLogEntry(dunkel, "gesichert (Funker)", id);
+      alert(`Gebiet "${id}" für Team ${team} gesichert (Dunkelfarbe).`);
+    }
+    // Sonst nichts!
+    else {
+      alert("Nur graue oder eigene hellfarbige Gebiete können vom Funker bearbeitet werden!");
+    }
+  }
+
+  // Listener setzen auf alle Layer:
+  geojson.eachLayer(layer => {
+    layer.on('click', funkerClick);
+    layer._funkerActive = true;
+    // Optional: optisches Highlight für Funkermodus (dicker goldener Rand)
+    layer.setStyle({ weight: 4, color: "#eac100" });
+  });
+
+  // Nach 60 Sekunden alles zurücksetzen
+  setTimeout(() => {
+    geojson.eachLayer(layer => {
+      if (layer._funkerActive) {
+        layer.off('click', funkerClick);
+        delete layer._funkerActive;
+        layer.setStyle({ weight: 2, color: "black" });
+      }
+    });
+    alert("Funker-Modus beendet!");
+  }, 10000);
+});
+   
 
 function startCountdown(targetTime) {
   function update() {
