@@ -492,7 +492,7 @@ const treasureCircles = {}; // Name → Leaflet-Circle
 document.getElementById("adminToggle").addEventListener("click", function () {
   if (!editEnabled) {
     const pw = prompt("Bitte Admin-Passwort eingeben:");
-    if (pw === "freiburg123") {
+    if (pw === "adminfreiburg") {
       editEnabled = true;
       document.body.classList.add("adminVisible");
       document.getElementById("lockIcon").textContent = "🔓";
@@ -510,7 +510,7 @@ document.getElementById("adminToggle").addEventListener("click", function () {
 
     document.getElementById("lootboxToggle").addEventListener("click", function () {
   const pw = prompt("Bitte Passwort für Lootbox eingeben:");
-  if (pw === "lootbox987") {
+  if (pw === "lootbox4u") {
     openLootboxPopup();
   } else {
     alert("Falsches Passwort!");
@@ -646,17 +646,17 @@ document.getElementById("funkerToggle").addEventListener("click", async function
   // Passwort-Abfrage
   const pw = prompt("Funker-Passwort für Team Rot/Blau/Gelb eingeben:");
   let team, hell, dunkel, pwOk;
-  if (pw === "funkerA123") {
+  if (pw === "funkerAlpha") {
     team = "A";
     hell = "#fb8072";
     dunkel = "#e41a1c";
     pwOk = true;
-  } else if (pw === "funkerB123") {
+  } else if (pw === "funkerBravo") {
     team = "B";
     hell = "#a6cee3";
     dunkel = "#377eb8";
     pwOk = true;
-  } else if (pw === "funkerC123") {
+  } else if (pw === "funkerCharlie") {
     team = "C";
     hell = "#ffffb3";
     dunkel = "#ffdf00";
@@ -666,7 +666,7 @@ document.getElementById("funkerToggle").addEventListener("click", async function
     return;
   }
 
-  alert(`Funker-Modus aktiviert: Team ${team} kann graue Gebiete erobern (Helfarbe) oder eigene hellfarbige Gebiete sichern (Dunkelfarbe).\n\nKlicke einfach auf das gewünschte Gebiet! (Modus endet nach 60 Sekunden)`);
+  alert(`Funker-Modus aktiviert: Team ${team} kann graue Gebiete erobern oder eigene eroberte Gebiete sichern.\n\nKlicke einfach auf das gewünschte Gebiet! (Modus endet automatisch nach Klick!)`);
 
   // Interaktiven Klickmodus aktivieren:
   function funkerClick(e) {
@@ -707,16 +707,16 @@ document.getElementById("funkerToggle").addEventListener("click", async function
   });
 
   // Nach 60 Sekunden alles zurücksetzen
-  setTimeout(() => {
-    geojson.eachLayer(layer => {
-      if (layer._funkerActive) {
-        layer.off('click', funkerClick);
-        delete layer._funkerActive;
-        layer.setStyle({ weight: 2, color: "black" });
-      }
-    });
-    alert("Funker-Modus beendet!");
-  }, 10000);
+setTimeout(() => {
+  geojson.eachLayer(layer => {
+    if (layer._funkerActive) {
+      layer.off('click', funkerClick);
+      delete layer._funkerActive;
+      layer.setStyle({ weight: 2, color: "black" });
+    }
+  });
+  alert("Funker-Modus beendet!");
+}, 250); // kurz warten, dann zurücksetzen
 });
    
 
