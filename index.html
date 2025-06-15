@@ -434,54 +434,61 @@ if (gameCode && gamePassword) {
 
     const map = L.map('map', {
   minZoom: 11,
-  maxZoom: 19
+  maxZoom: 18
 }).setView([47.988, 7.85], 12);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '&copy; OpenStreetMap contributors'
     }).addTo(map);
     L.control.scale({ position: 'bottomleft', imperial: false }).addTo(map);
    // — Stadtbahnlinien 1–5 farbig einzeichnen —
-fetch(
-  'https://offenedaten.freiburg.de/api/geospatial/liniennetz_stadtbahn/ows?' +
-  'service=WFS&version=1.0.0&request=GetFeature&' +
-  'typeName=ODF_LINNETZ_STADTBahn&outputFormat=application/json'
-)
+// 1. Baue den Overpass-Query-String für Tramlinien 1–5 im Freiburger Bereich
+const bbox = [47.90, 7.70, 48.05, 7.90]; // [S, W, N, O]
+const query = `
+[out:json][timeout:25];
+(
+  relation["route"="tram"]["ref"~"^[1-5]$"](${bbox.join(',')});
+);
+out geom;
+`;
+
+// 2. Anfrage an Overpass
+fetch('https://overpass-api.de/api/interpreter', {
+  method: 'POST',
+  body: new URLSearchParams({ data: query })
+})
   .then(res => res.json())
-  .then(data => {
-    // Nur Linien 1–5 extrahieren
-    const linien15 = {
-      type: 'FeatureCollection',
-      features: data.features.filter(f => {
-        const nr = String(f.properties.liniennummer);
-        return ['1','2','3','4','5'].includes(nr);
-      })
-    };
-    // GeoJSON-Layer mit Farb-Style
-    L.geoJSON(linien15, {
-      style: feature => {
-        const nr = String(feature.properties.liniennummer);
-        let color;
-        switch (nr) {
-          case '1': color = 'red';    break;
-          case '2': color = 'green';  break;
-          case '3': color = 'orange'; break;
-          case '4': color = 'pink';   break;
-          case '5': color = 'blue';   break;
-          default:  color = 'black';
+  .then(osm => {
+    // 3. OSM JSON in GeoJSON konvertieren (einfacher Weg für Ways)
+    const features = [];
+    osm.elements.forEach(el => {
+      if (el.type === 'way' && el.geometry) {
+        const coords = el.geometry.map(pt => [pt.lon, pt.lat]);
+        features.push({
+          type: 'Feature',
+          properties: { ref: el.tags.ref },
+          geometry: { type: 'LineString', coordinates: coords }
+        });
+      }
+    });
+
+    // 4. Linie 1–5 in ihren Farben zeichnen
+    L.geoJSON({ type: 'FeatureCollection', features }, {
+      style: f => {
+        switch (f.properties.ref) {
+          case '1': return { color: 'red',   weight: 4, opacity: 0.8 };
+          case '2': return { color: 'green', weight: 4, opacity: 0.8 };
+          case '3': return { color: 'orange',weight: 4, opacity: 0.8 };
+          case '4': return { color: 'pink',  weight: 4, opacity: 0.8 };
+          case '5': return { color: 'blue',  weight: 4, opacity: 0.8 };
         }
-        return {
-          color: color,
-          weight: 4,
-          opacity: 0.8
-        };
       },
-      onEachFeature: (feature, layer) => {
-        const nr = feature.properties.liniennummer;
-        layer.bindPopup(`Stadtbahn Linie ${nr}`);
+      onEachFeature: (f, layer) => {
+        layer.bindPopup(`Stadtbahn Linie ${f.properties.ref}`);
       }
     }).addTo(map);
   })
-  .catch(err => console.error('Fehler beim Laden der Stadtbahnlinien:', err));
+  .catch(err => console.error('Overpass-Fehler:', err));
+
 
     map.on("zoomend", updateTreasureVisibility);
 
