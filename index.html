@@ -917,6 +917,13 @@ function styleFeature(color, id) {
     fetch('https://raw.githubusercontent.com/codeforgermany/click_that_hood/main/public/data/freiburg.geojson')
       .then(res => res.json())
       .then(async data => {
+        // Name-Korrektur: 'St. Georges' → 'St. Georgen'
+data.features.forEach(f => {
+  if (f.properties.name === 'St. Georges') {
+    f.properties.name = 'St. Georgen';
+  }
+});
+
         const farben = await loadColors();
         geojson = L.geoJSON(data, {
         style: feature => {
