@@ -440,56 +440,6 @@ if (gameCode && gamePassword) {
       attribution: '&copy; OpenStreetMap contributors'
     }).addTo(map);
     L.control.scale({ position: 'bottomleft', imperial: false }).addTo(map);
-   // — Stadtbahnlinien 1–5 farbig einzeichnen —
-// 1. Baue den Overpass-Query-String für Tramlinien 1–5 im Freiburger Bereich
-const bbox = [47.90, 7.70, 48.05, 7.90]; // [S, W, N, O]
-const query = `
-[out:json][timeout:25];
-(
-  relation["route"="tram"]["ref"~"^[1-5]$"](${bbox.join(',')});
-);
-out geom;
-`;
-
-// 2. Anfrage an Overpass
-fetch('https://overpass-api.de/api/interpreter', {
-  method: 'POST',
-  body: new URLSearchParams({ data: query })
-})
-  .then(res => res.json())
-  .then(osm => {
-    // 3. OSM JSON in GeoJSON konvertieren (einfacher Weg für Ways)
-    const features = [];
-    osm.elements.forEach(el => {
-      if (el.type === 'way' && el.geometry) {
-        const coords = el.geometry.map(pt => [pt.lon, pt.lat]);
-        features.push({
-          type: 'Feature',
-          properties: { ref: el.tags.ref },
-          geometry: { type: 'LineString', coordinates: coords }
-        });
-      }
-    });
-
-    // 4. Linie 1–5 in ihren Farben zeichnen
-    L.geoJSON({ type: 'FeatureCollection', features }, {
-      style: f => {
-        switch (f.properties.ref) {
-          case '1': return { color: 'red',   weight: 4, opacity: 0.8 };
-          case '2': return { color: 'green', weight: 4, opacity: 0.8 };
-          case '3': return { color: 'orange',weight: 4, opacity: 0.8 };
-          case '4': return { color: 'pink',  weight: 4, opacity: 0.8 };
-          case '5': return { color: 'blue',  weight: 4, opacity: 0.8 };
-        }
-      },
-      onEachFeature: (f, layer) => {
-        layer.bindPopup(`Stadtbahn Linie ${f.properties.ref}`);
-      }
-    }).addTo(map);
-  })
-  .catch(err => console.error('Overpass-Fehler:', err));
-
-
     map.on("zoomend", updateTreasureVisibility);
 
    // 1. Starte kontinuierliches Tracking (watch)
