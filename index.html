@@ -434,12 +434,55 @@ if (gameCode && gamePassword) {
 
     const map = L.map('map', {
   minZoom: 11,
-  maxZoom: 18
+  maxZoom: 19
 }).setView([47.988, 7.85], 12);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '&copy; OpenStreetMap contributors'
     }).addTo(map);
     L.control.scale({ position: 'bottomleft', imperial: false }).addTo(map);
+   // — Stadtbahnlinien 1–5 farbig einzeichnen —
+fetch(
+  'https://offenedaten.freiburg.de/api/geospatial/liniennetz_stadtbahn/ows?' +
+  'service=WFS&version=1.0.0&request=GetFeature&' +
+  'typeName=ODF_LINNETZ_STADTBahn&outputFormat=application/json'
+)
+  .then(res => res.json())
+  .then(data => {
+    // Nur Linien 1–5 extrahieren
+    const linien15 = {
+      type: 'FeatureCollection',
+      features: data.features.filter(f => {
+        const nr = String(f.properties.liniennummer);
+        return ['1','2','3','4','5'].includes(nr);
+      })
+    };
+    // GeoJSON-Layer mit Farb-Style
+    L.geoJSON(linien15, {
+      style: feature => {
+        const nr = String(feature.properties.liniennummer);
+        let color;
+        switch (nr) {
+          case '1': color = 'red';    break;
+          case '2': color = 'green';  break;
+          case '3': color = 'orange'; break;
+          case '4': color = 'pink';   break;
+          case '5': color = 'blue';   break;
+          default:  color = 'black';
+        }
+        return {
+          color: color,
+          weight: 4,
+          opacity: 0.8
+        };
+      },
+      onEachFeature: (feature, layer) => {
+        const nr = feature.properties.liniennummer;
+        layer.bindPopup(`Stadtbahn Linie ${nr}`);
+      }
+    }).addTo(map);
+  })
+  .catch(err => console.error('Fehler beim Laden der Stadtbahnlinien:', err));
+
     map.on("zoomend", updateTreasureVisibility);
 
    // 1. Starte kontinuierliches Tracking (watch)
