@@ -442,6 +442,33 @@ if (gameCode && gamePassword) {
     L.control.scale({ position: 'bottomleft', imperial: false }).addTo(map);
     map.on("zoomend", updateTreasureVisibility);
 
+   // 1. Starte kontinuierliches Tracking (watch)
+map.locate({
+  watch: true,
+  enableHighAccuracy: true,
+  maximumAge: 10000
+});
+
+// 2. Platz für den Marker
+let liveMarker;
+
+// 3. Bei jedem Positions-Update: Marker anlegen bzw. verschieben
+map.on('locationfound', e => {
+  if (!liveMarker) {
+    // erst beim ersten Fix anlegen und hinzufügen
+    liveMarker = L.marker(e.latlng).addTo(map);
+  } else {
+    // danach nur noch verschieben
+    liveMarker.setLatLng(e.latlng);
+  }
+});
+
+// 4. Fehlerbehandlung
+map.on('locationerror', err => {
+  console.warn('Standort konnte nicht ermittelt werden:', err.message);
+});
+
+
   // 🗺️ Schatzorte mit präzisen Koordinaten
 const treasureSpots = [
   { name: "Altstadt", coords: [47.995548248291016, 7.8531999588012695] },
